@@ -1,42 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-//import Map from './map';
-import OverpassQueryComponent from './OverpassQueryComponent';
+import { useEffect, useRef, useState } from 'react';
+import './App.css';
+import Map from './map';
+import QuestGenerator, { Quest } from './QuestGenerator';
+import { getCurrentLocation } from './GeoJsonHelper';
 
 function App() {
-	const [count, setCount] = useState(0);
+	const firstRender = useRef(true);
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <div className="Map">
-      {/*<Map Hier Cords eingeben /> */}
-      </div>
-      <OverpassQueryComponent />
+	const [quests, setQuests] = useState<Quest[]>([]);
+	const [currentQuestIndex, setCurrentQuestIndex] = useState<number>(0);
+	const [position, setPosition] = useState<[number, number]>();
 
-    </>
-  )
+	useEffect(() => {
+		if (firstRender.current) {
+			firstRender.current = false;
+			QuestGenerator()
+				.then(quest => {
+					console.log(quest);
+					setQuests(oldQuests => [...oldQuests, quest]);
+				})
+				.catch(e => console.error(e));
+			getCurrentLocation().then(pos => {
+				setPosition(pos);
+			});
+		}
+	});
+
+	console.log(quests);
+
+	return (
+		<>
+			<h1>Some Headline</h1>
+			<div className="Map">
+				{quests.length > currentQuestIndex && position && (
+					<Map nodes={quests[currentQuestIndex].nodes} position={position} />
+				)}
+			</div>
+		</>
+	);
 }
 
 export default App;
