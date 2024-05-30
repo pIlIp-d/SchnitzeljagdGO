@@ -3,9 +3,10 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 //import Map from './map';
+import OverpassQueryComponent from './OverpassQueryComponent';
 
 function App() {
-  const [count, setCount] = useState(0)
+	const [count, setCount] = useState(0);
 
   return (
     <>
@@ -32,8 +33,10 @@ function App() {
       <div className="Map">
       {/*<Map Hier Cords eingeben /> */}
       </div>
+      <OverpassQueryComponent />
+
     </>
   )
 }
 
-export default App
+export default App;
