@@ -14,3 +14,6 @@ export type OSMData = {
     };
     elements: (NodeElement)[];
   };
+export type Props = {
+    nodes : NodeElement[]
+}
