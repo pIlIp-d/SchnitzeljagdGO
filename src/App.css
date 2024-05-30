@@ -40,3 +40,9 @@
 .read-the-docs {
   color: #888;
 }
+
+.Map {
+  width: 1280px;
+  display: flex;
+  flex-direction: column;
+}
