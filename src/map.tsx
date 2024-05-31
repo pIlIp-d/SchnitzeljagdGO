@@ -8,7 +8,12 @@ import L from 'leaflet';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+<<<<<<< HEAD
 import { NodeElement, Props } from './types';
+=======
+import { NodeElement } from './types';
+import StreetView from './OpenStreetView';
+>>>>>>> origin/main
 // Fixing the default icon issue
 const DefaultIcon = L.icon({
 	iconRetinaUrl,
@@ -41,12 +46,16 @@ const Map: React.FC<Props> = ({ nodes }) => {
 	}, [nodes]);
 	// Hier Node type ändern
 	const setMarkersOnMap = (nodes: NodeElement[]) => {
-		const newMarkers = nodes.map(node => (
+		const uniqueFilteredNodes = nodes.filter(function (item, pos) {
+			return nodes.indexOf(item) == pos;
+		});
+		const newMarkers = uniqueFilteredNodes.map(node => (
 			<Marker key={node.id} position={[node.lat, node.lon]}>
 				<Popup>
 					Node ID: {node.id}
 					<br />
 					Lat: {node.lat}, Lon: {node.lon}
+					<StreetView latitude={node.lat} longitude={node.lon} />
 				</Popup>
 			</Marker>
 		));
