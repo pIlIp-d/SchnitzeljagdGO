@@ -26,8 +26,8 @@ const UserIcon = L.icon({
 	iconUrl: UserPin, // Replace with your image URL
 	iconSize: [50, 50], // Adjust the size to match your image dimensions
 	iconAnchor: [25, 50], // Adjust the anchor to position the icon correctly
-	popupAnchor: [0,0], // Adjust the popup anchor to open the popup correctly
-  });
+	popupAnchor: [0, 0], // Adjust the popup anchor to open the popup correctly
+});
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
@@ -52,7 +52,6 @@ const Map: React.FC<MapParameters> = parameters => {
 			);
 		}
 	}, []);
-
 
 	useEffect(() => {
 		const fetchOSMData = async () => {
