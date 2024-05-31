@@ -1,9 +1,9 @@
-import { fetchNodesByHouseNumber } from './GeoJsonHelper';
+import { fetchNodes, getBuildingTypesInRadius } from './GeoJsonHelper';
 import { NodeElement, QueryResult } from './types';
 
 export interface PendingQuest {
-	getQueryResult: () => Promise<QueryResult>;
-	name: string;
+    getQueryResult: () => Promise<QueryResult>;
+    name: string;
 }
 
 export interface Quest {
@@ -14,20 +14,27 @@ export interface Quest {
 }
 
 enum QuestType {
-	Housenumber = 0,
-	Node = 1,
+    Housenumber = 0,
+    Building = 1,
 }
 
-const questBuilder = (questType: QuestType): PendingQuest => {
-	switch (questType) {
-		case QuestType.Housenumber:
-		default:
-			const houseNumber = Math.floor(Math.random() * 200);
-			return {
-				name: `Find a House with the number ${houseNumber}.`,
-				getQueryResult: () => fetchNodesByHouseNumber(houseNumber, 1000),
-			};
-	}
+const questBuilder = async (questType: QuestType): Promise<PendingQuest> => {
+    switch (questType) {
+        case QuestType.Building:
+            const buildingTypes = await getBuildingTypesInRadius(5, 50, 1000);
+            const randomBuildingType = buildingTypes[Math.floor(Math.random() * (buildingTypes.length - 1))];
+            return {
+                name: `Try to find a Building of type: ${randomBuildingType.tags.building}.`,
+                getQueryResult: () => fetchNodes(`["building"="${randomBuildingType.tags.building}"]`, 1000),
+            };
+        case QuestType.Housenumber:
+        default:
+            const houseNumber = Math.floor(Math.random() * 200);
+            return {
+                name: `Find a House with the number ${houseNumber}.`,
+                getQueryResult: () => fetchNodes(`["addr:housenumber"="${houseNumber}"]`, 1000),
+            };
+    }
 };
 
 const QuestGenerator = async (minElementsForQuest: number = 1): Promise<Quest> => {

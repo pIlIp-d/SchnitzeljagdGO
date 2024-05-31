@@ -41,7 +41,10 @@ const Map: React.FC<MapParameters> = parameters => {
 	}, [parameters.nodes]);
 	// Hier Node type ändern
 	const setMarkersOnMap = (nodes: NodeElement[]) => {
-		const newMarkers = nodes.map(node => (
+		const uniqueFilteredNodes = nodes.filter(function (item, pos) {
+			return nodes.indexOf(item) == pos;
+		});
+		const newMarkers = uniqueFilteredNodes.map(node => (
 			<Marker key={node.id} position={[node.lat, node.lon]}>
 				<Popup>
 					Node ID: {node.id}

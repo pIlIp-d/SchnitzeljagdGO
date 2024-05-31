@@ -19,3 +19,11 @@ export type QueryResult = {
 	nodes: NodeElement[];
 	uniqueNodeGroups: number;
 };
+
+export type BuildingType = {
+	id: number;
+	tags: {
+		count: number;
+		building: string;
+	};
+};
