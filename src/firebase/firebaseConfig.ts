@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import 'firebase/auth';
-import firebaseui from 'firebaseui';
+import * as firebaseui from 'firebaseui';
 import { getAuth, EmailAuthProvider } from 'firebase/auth';
 
 export const firebaseConfig = {

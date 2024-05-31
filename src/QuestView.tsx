@@ -1,15 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
-import Dropdown from './QuestList';
-import { QuestContext } from './QuestContext';
 import { useRef, useState, useEffect } from 'react';
 import { getCurrentLocation } from './GeoJsonHelper';
+import QuestDetails from './QuestDetails';
 import QuestGenerator, { Quest } from './QuestGenerator';
-import AuthUI from './firebase/AuthUI';
-import QuestView from './QuestView';
-import QuestListView from './QuestListView';
+import Map from './map';
 
-function App() {
+function QuestView() {
 	const firstRender = useRef(true);
 
 	const [quests, setQuests] = useState<Quest[]>([]);
@@ -32,17 +27,15 @@ function App() {
 	});
 
 	return (
-		<QuestContext.Provider value={quests}>
-			<Router>
-				<Routes>
-					<Route path="/login" element={<AuthUI />} />
-					<Route path="/" element={<Dropdown quests={quests} />} />
-					<Route path="/quest/:name" element={<QuestView />} />
-					<Route path="/dropdown" element={<QuestListView />} />
-				</Routes>
-			</Router>
-		</QuestContext.Provider>
+		<>
+			<QuestDetails />
+			<div className="Map">
+				{position && (
+					<Map nodes={quests.length > currentQuestIndex ? quests[currentQuestIndex].nodes : []} position={position} />
+				)}
+			</div>
+		</>
 	);
 }
 
-export default App;
+export default QuestView;

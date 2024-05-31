@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { ui, uiConfig } from './firebaseConfig';
 import 'firebaseui/dist/firebaseui.css';
 
-const FirebaseAuthUI = () => {
+const AuthUI = () => {
 	useEffect(() => {
 		ui.start('#firebaseui-auth-container', uiConfig);
 	}, []);
@@ -15,4 +15,4 @@ const FirebaseAuthUI = () => {
 	);
 };
 
-export default FirebaseAuthUI;
+export default AuthUI;
