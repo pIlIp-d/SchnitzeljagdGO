@@ -8,7 +8,7 @@ import L from 'leaflet';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
-import { NodeElement } from './types';
+import { NodeElement, Props } from './types';
 // Fixing the default icon issue
 const DefaultIcon = L.icon({
 	iconRetinaUrl,
@@ -27,18 +27,18 @@ interface MapParameters {
 	position: [number, number];
 }
 
-const Map: React.FC<MapParameters> = parameters => {
+const Map: React.FC<Props> = ({ nodes }) => {
 	const [markers, setMarkers] = useState<JSX.Element[]>([]);
 
 	useEffect(() => {
 		const fetchOSMData = async () => {
 			// Hier nodes zuweisen
 			//const nodes =
-			setMarkersOnMap(parameters.nodes);
+			setMarkersOnMap(nodes);
 		};
 
 		fetchOSMData();
-	}, [parameters.nodes]);
+	}, [nodes]);
 	// Hier Node type ändern
 	const setMarkersOnMap = (nodes: NodeElement[]) => {
 		const newMarkers = nodes.map(node => (
@@ -54,11 +54,7 @@ const Map: React.FC<MapParameters> = parameters => {
 	};
 
 	return (
-		<MapContainer
-			center={parameters.position}
-			zoom={13}
-			scrollWheelZoom={true}
-			style={{ height: '100vh', width: '100%' }}>
+		<MapContainer center={position} zoom={13} scrollWheelZoom={true} style={{ height: '100vh', width: '100%' }}>
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
