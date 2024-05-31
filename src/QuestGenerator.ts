@@ -1,8 +1,8 @@
 import { fetchNodesByHouseNumber } from './GeoJsonHelper';
-import { NodeElement } from './types';
+import { NodeElement, QueryResult } from './types';
 
 export interface PendingQuest {
-	getNodes: () => Promise<NodeElement[]>;
+	getQueryResult: () => Promise<QueryResult>;
 	name: string;
 }
 
@@ -23,7 +23,7 @@ const questBuilder = (questType: QuestType): PendingQuest => {
 			const houseNumber = Math.floor(Math.random() * 200);
 			return {
 				name: `Find a House with the number ${houseNumber}.`,
-				getNodes: () => fetchNodesByHouseNumber(houseNumber, 1000),
+				getQueryResult: () => fetchNodesByHouseNumber(houseNumber, 1000),
 			};
 	}
 };
@@ -35,11 +35,11 @@ const QuestGenerator = async (minElementsForQuest: number = 1): Promise<Quest> =
 		maxTries--;
 		const randomQuestType = Math.random() * (Object.keys(QuestType).length - 1);
 		const randomPendingQuest = questBuilder(randomQuestType);
-		const data = await randomPendingQuest.getNodes();
+		const data = await randomPendingQuest.getQueryResult();
 		// if it has at least required amount of nodes
-		if (data.length >= minElementsForQuest)
+		if (data.uniqueNodeGroups >= minElementsForQuest)
 			return {
-				nodes: data,
+				nodes: data.nodes,
 				name: randomPendingQuest.name,
 			};
 		// else try again;

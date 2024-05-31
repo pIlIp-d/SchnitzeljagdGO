@@ -14,3 +14,8 @@ export type OSMData = {
 	};
 	elements: NodeElement[];
 };
+
+export type QueryResult = {
+	nodes: NodeElement[];
+	uniqueNodeGroups: number;
+};

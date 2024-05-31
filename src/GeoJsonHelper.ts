@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { NodeElement, OSMData } from './types';
+import { OSMData, QueryResult } from './types';
 
 export const getCurrentLocation = (): Promise<[number, number]> => {
 	return new Promise((resolve, reject) => {
@@ -43,7 +43,10 @@ export const fetchGeoJSON = async (selector: string, radius: number): Promise<OS
 	});
 };
 
-export const fetchNodesByHouseNumber = async (number: number, radius: number): Promise<NodeElement[]> => {
+export const fetchNodesByHouseNumber = async (number: number, radius: number): Promise<QueryResult> => {
 	const rawGeoJSONData = await fetchGeoJSON(`["addr:housenumber"="${number}"]`, radius);
-	return rawGeoJSONData.elements.filter(node => node.type === 'node');
+	return {
+		nodes: rawGeoJSONData.elements.filter(node => node.type === 'node'),
+		uniqueNodeGroups: rawGeoJSONData.elements.filter(node => node.type === 'way').length,
+	};
 };
