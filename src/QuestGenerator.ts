@@ -1,49 +1,56 @@
-import { fetchNodesByHouseNumber } from './GeoJsonHelper';
+import { fetchNodes, getBuildingTypesInRadius } from './GeoJsonHelper';
 import { NodeElement, QueryResult } from './types';
 
 export interface PendingQuest {
-	getQueryResult: () => Promise<QueryResult>;
-	name: string;
+    getQueryResult: () => Promise<QueryResult>;
+    name: string;
 }
 
 export interface Quest {
-	nodes: NodeElement[];
-	name: string;
+    nodes: NodeElement[];
+    name: string;
 }
 
 enum QuestType {
-	Housenumber = 0,
-	Node = 1,
+    Housenumber = 0,
+    Building = 1,
 }
 
-const questBuilder = (questType: QuestType): PendingQuest => {
-	switch (questType) {
-		case QuestType.Housenumber:
-		default:
-			const houseNumber = Math.floor(Math.random() * 200);
-			return {
-				name: `Find a House with the number ${houseNumber}.`,
-				getQueryResult: () => fetchNodesByHouseNumber(houseNumber, 1000),
-			};
-	}
+const questBuilder = async (questType: QuestType): Promise<PendingQuest> => {
+    switch (questType) {
+        case QuestType.Building:
+            const buildingTypes = await getBuildingTypesInRadius(5, 50, 1000);
+            const randomBuildingType = buildingTypes[Math.floor(Math.random() * (buildingTypes.length - 1))];
+            return {
+                name: `Try to find a Building of type: ${randomBuildingType.tags.building}.`,
+                getQueryResult: () => fetchNodes(`["building"="${randomBuildingType.tags.building}"]`, 1000),
+            };
+        case QuestType.Housenumber:
+        default:
+            const houseNumber = Math.floor(Math.random() * 200);
+            return {
+                name: `Find a House with the number ${houseNumber}.`,
+                getQueryResult: () => fetchNodes(`["addr:housenumber"="${houseNumber}"]`, 1000),
+            };
+    }
 };
 
 const QuestGenerator = async (minElementsForQuest: number = 1): Promise<Quest> => {
-	let maxTries = 20;
-	while (true) {
-		if (maxTries === 0) throw new Error("Couldn't find Quest for your location.");
-		maxTries--;
-		const randomQuestType = Math.random() * (Object.keys(QuestType).length - 1);
-		const randomPendingQuest = questBuilder(randomQuestType);
-		const data = await randomPendingQuest.getQueryResult();
-		// if it has at least required amount of nodes
-		if (data.uniqueNodeGroups >= minElementsForQuest)
-			return {
-				nodes: data.nodes,
-				name: randomPendingQuest.name,
-			};
-		// else try again;
-	}
+    let maxTries = 20;
+    while (true) {
+        if (maxTries === 0) throw new Error("Couldn't find Quest for your location.");
+        maxTries--;
+        const randomQuestType = Math.floor(Math.random() * (Object.keys(QuestType).length - 1));
+        const randomPendingQuest = await questBuilder(randomQuestType);
+        const data = await randomPendingQuest.getQueryResult();
+        // if it has at least required amount of nodes
+        if (data.uniqueNodeGroups >= minElementsForQuest)
+            return {
+                nodes: data.nodes,
+                name: randomPendingQuest.name,
+            };
+        // else try again;
+    }
 };
 
 export default QuestGenerator;
