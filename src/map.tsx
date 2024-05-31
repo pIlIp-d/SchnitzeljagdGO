@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import UserPin from './assets/UserPin.png';
 
 // Import Leaflet and fix the default icon path
 import L from 'leaflet';
@@ -21,6 +22,13 @@ const DefaultIcon = L.icon({
 	shadowSize: [41, 41],
 });
 
+const UserIcon = L.icon({
+	iconUrl: UserPin, // Replace with your image URL
+	iconSize: [50, 50], // Adjust the size to match your image dimensions
+	iconAnchor: [25, 50], // Adjust the anchor to position the icon correctly
+	popupAnchor: [0,0], // Adjust the popup anchor to open the popup correctly
+  });
+
 L.Marker.prototype.options.icon = DefaultIcon;
 
 interface MapParameters {
@@ -30,6 +38,21 @@ interface MapParameters {
 
 const Map: React.FC<MapParameters> = parameters => {
 	const [markers, setMarkers] = useState<JSX.Element[]>([]);
+	const [position, setPosition] = useState<[number, number] | null>(null);
+
+	useEffect(() => {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				position => {
+					setPosition([position.coords.latitude, position.coords.longitude]);
+				},
+				error => {
+					console.error('Error getting user location:', error);
+				}
+			);
+		}
+	}, []);
+
 
 	useEffect(() => {
 		const fetchOSMData = async () => {
@@ -68,6 +91,11 @@ const Map: React.FC<MapParameters> = parameters => {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
+			{position && (
+				<Marker position={position} icon={UserIcon}>
+					<Popup>You are here.</Popup>
+				</Marker>
+			)}
 			{markers}
 		</MapContainer>
 	);
