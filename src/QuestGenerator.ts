@@ -7,8 +7,10 @@ export interface PendingQuest {
 }
 
 export interface Quest {
-    nodes: NodeElement[];
-    name: string;
+	nodes: NodeElement[];
+	name: string;
+	current: number;
+	max: number;
 }
 
 enum QuestType {
@@ -36,21 +38,23 @@ const questBuilder = async (questType: QuestType): Promise<PendingQuest> => {
 };
 
 const QuestGenerator = async (minElementsForQuest: number = 1): Promise<Quest> => {
-    let maxTries = 20;
-    while (true) {
-        if (maxTries === 0) throw new Error("Couldn't find Quest for your location.");
-        maxTries--;
-        const randomQuestType = Math.floor(Math.random() * (Object.keys(QuestType).length - 1));
-        const randomPendingQuest = await questBuilder(randomQuestType);
-        const data = await randomPendingQuest.getQueryResult();
-        // if it has at least required amount of nodes
-        if (data.uniqueNodeGroups >= minElementsForQuest)
-            return {
-                nodes: data.nodes,
-                name: randomPendingQuest.name,
-            };
-        // else try again;
-    }
+	let maxTries = 20;
+	while (true) {
+		if (maxTries === 0) throw new Error("Couldn't find Quest for your location.");
+		maxTries--;
+		const randomQuestType = Math.random() * (Object.keys(QuestType).length - 1);
+		const randomPendingQuest = questBuilder(randomQuestType);
+		const data = await randomPendingQuest.getQueryResult();
+		// if it has at least required amount of nodes
+		if (data.uniqueNodeGroups >= minElementsForQuest)
+			return {
+				nodes: data.nodes,
+				name: randomPendingQuest.name,
+				current: 0,
+				max: data.uniqueNodeGroups,
+			};
+		// else try again;
+	}
 };
 
 export default QuestGenerator;

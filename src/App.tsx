@@ -1,8 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
+import Dropdown from './QuestList';
+import QuestDetails from './QuestDetails';
 import Map from './map';
-import QuestGenerator, { Quest } from './QuestGenerator';
+import { NodeElement } from './types';
+import { QuestContext } from './QuestContext';
+import { useRef, useState, useEffect } from 'react';
 import { getCurrentLocation } from './GeoJsonHelper';
+import QuestGenerator, { Quest } from './QuestGenerator';
 
 function App() {
 	const firstRender = useRef(true);
@@ -26,17 +31,20 @@ function App() {
 		}
 	});
 
-	console.log(quests);
-
 	return (
-		<>
-			<h1>Some Headline</h1>
-			<div className="Map">
-				{quests.length > currentQuestIndex && position && (
-					<Map nodes={quests[currentQuestIndex].nodes} position={position} />
-				)}
-			</div>
-		</>
+		<QuestContext.Provider value={quests}>
+			<Router>
+				<Routes>
+					<Route path="/" element={<Dropdown quests={quests} />} />
+					<Route path="/quest/:name" element={<QuestDetails />} />
+				</Routes>
+				<div className="Map">
+					{position && (
+						<Map nodes={quests.length > currentQuestIndex ? quests[currentQuestIndex].nodes : []} position={position} />
+					)}
+				</div>
+			</Router>
+		</QuestContext.Provider>
 	);
 }
 
