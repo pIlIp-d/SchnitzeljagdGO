@@ -6,12 +6,7 @@ const StreetView: React.FC<StreetViewProps> = ({ latitude, longitude }) => {
 		const gmmIntentUri = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${latitude},${longitude}`;
 		window.open(gmmIntentUri, '_blank');
 	};
-
-	return (
-		<div>
-			<button onClick={openStreetView}>Open Street View</button>
-		</div>
-	);
+	return <button onClick={openStreetView}>Open Street View</button>;
 };
 
 export default StreetView;

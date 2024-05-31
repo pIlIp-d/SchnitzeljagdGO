@@ -1,27 +1,11 @@
 import { fetchNodes, getBuildingTypesInRadius } from './GeoJsonHelper';
-import { NodeElement, QueryResult } from './types';
-
-export interface PendingQuest {
-	getQueryResult: () => Promise<QueryResult>;
-	name: string;
-}
-
-export interface Quest {
-	nodes: NodeElement[];
-	name: string;
-	current: number;
-	max: number;
-}
-
-enum QuestType {
-	Housenumber = 0,
-	Building = 1,
-}
+import { PendingQuest, Quest, QuestType } from './types';
 
 const questBuilder = async (questType: QuestType): Promise<PendingQuest> => {
 	switch (questType) {
 		case QuestType.Building:
 			const buildingTypes = await getBuildingTypesInRadius(5, 50, 1000);
+			console.log(buildingTypes);
 			const randomBuildingType = buildingTypes[Math.floor(Math.random() * (buildingTypes.length - 1))];
 			return {
 				name: `Try to find a Building of type: ${randomBuildingType.tags.building}.`,
@@ -42,16 +26,19 @@ const QuestGenerator = async (minElementsForQuest: number = 1): Promise<Quest> =
 	while (true) {
 		if (maxTries === 0) throw new Error("Couldn't find Quest for your location.");
 		maxTries--;
-		const randomQuestType = Math.random() * (Object.keys(QuestType).length - 1);
+		const randomQuestType = Math.floor(Math.random() * (Object.keys(QuestType).length - 1));
 		const randomPendingQuest = await questBuilder(randomQuestType);
 		const data = await randomPendingQuest.getQueryResult();
+		console.log(data);
+
 		// if it has at least required amount of nodes
-		if (data.uniqueNodeGroups >= minElementsForQuest)
+		if (data.ways.length >= minElementsForQuest)
 			return {
 				nodes: data.nodes,
+				ways: data.ways,
 				name: randomPendingQuest.name,
 				current: 0,
-				max: data.uniqueNodeGroups,
+				max: data.ways.length,
 			};
 		// else try again;
 	}
