@@ -20,6 +20,11 @@ export type QueryResult = {
 	uniqueNodeGroups: number;
 };
 
+export type StreetViewProps = {
+	latitude: number;
+	longitude: number;
+};
+
 export type BuildingType = {
 	id: number;
 	tags: {
