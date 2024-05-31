@@ -45,6 +45,7 @@ export const fetchGeoJSON = async (selector: string, radius: number): Promise<OS
 
 export const fetchNodesByHouseNumber = async (number: number, radius: number): Promise<QueryResult> => {
 	const rawGeoJSONData = await fetchGeoJSON(`["addr:housenumber"="${number}"]`, radius);
+	console.log(rawGeoJSONData);
 	return {
 		nodes: rawGeoJSONData.elements.filter(node => node.type === 'node'),
 		uniqueNodeGroups: rawGeoJSONData.elements.filter(node => node.type === 'way').length,

@@ -9,6 +9,8 @@ export interface PendingQuest {
 export interface Quest {
 	nodes: NodeElement[];
 	name: string;
+	current: number;
+	max: number;
 }
 
 enum QuestType {
@@ -41,6 +43,8 @@ const QuestGenerator = async (minElementsForQuest: number = 1): Promise<Quest> =
 			return {
 				nodes: data.nodes,
 				name: randomPendingQuest.name,
+				current: 0,
+				max: data.uniqueNodeGroups,
 			};
 		// else try again;
 	}
