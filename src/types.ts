@@ -19,3 +19,8 @@ export type QueryResult = {
 	nodes: NodeElement[];
 	uniqueNodeGroups: number;
 };
+
+export type StreetViewProps = {
+	latitude: number;
+	longitude: number;
+};
