@@ -3,16 +3,20 @@ import './App.css';
 import { QuestContext } from './QuestContext';
 import { useRef, useState, useEffect } from 'react';
 import { getCurrentLocation } from './GeoJsonHelper';
-import QuestGenerator from './QuestGenerator';
 import { getDistance } from 'geolib';
-import QuestView from './views/QuestView';
-import QuestListView from './views/QuestListView';
 import { FoundQuest, Quest } from './types';
+import QuestGenerator from './QuestGenerator';
+import QuestView from './QuestView';
+import QuestListView from './QuestListView';
+import LoginView from './firebase/LoginView';
+import { checkUserStatus } from './firebase/AuthStatus';
 
 function App() {
 	const firstRender = useRef(true);
 
 	const [amountOfCompletedQuests, setAmountOfCompletedQuests] = useState<number>(0);
+	const [loggedIn, setLoggedIn] = useState(false);
+
 	const [quests, setQuests] = useState<Quest[]>([]);
 	const [currentQuestIndex, setCurrentQuestIndex] = useState<number>(0);
 	const [position, setPosition] = useState<[number, number]>();
@@ -31,6 +35,17 @@ function App() {
 				setPosition(pos);
 			});
 		}
+		checkUserStatus()
+			.then(({ user }) => {
+				if (user) {
+					setLoggedIn(true);
+				} else {
+					setLoggedIn(false);
+				}
+			})
+			.catch(error => {
+				console.error('Error checking user status:', error);
+			});
 	});
 
 	const checkLocation = async () => {
@@ -65,18 +80,34 @@ function App() {
 	return (
 		<QuestContext.Provider value={quests}>
 			<Router>
-				<Routes>
-					<Route path="/login" element={<>Login Page</>} />
-					{
-						position &&
-						<>
-							<Route path="/" element={<QuestListView foundQuests={foundQuests} position={position} quests={quests} />} />
-							<Route path="/quest/:name" element={<QuestView quest={quests[currentQuestIndex]} position={position} foundQuests={foundQuests} checkLocation={checkLocation} />} />
-						</>
-					}
-				</Routes >
-			</Router >
-		</QuestContext.Provider >
+				{loggedIn ? (
+					<Routes>
+						<Route path="/login" element={<LoginView />} />
+						{position && (
+							<>
+								<Route
+									path="/"
+									element={<QuestListView foundQuests={foundQuests} position={position} quests={quests} />}
+								/>
+								<Route
+									path="/quest/:name"
+									element={
+										<QuestView
+											quest={quests[currentQuestIndex]}
+											position={position}
+											foundQuests={foundQuests}
+											checkLocation={checkLocation}
+										/>
+									}
+								/>
+							</>
+						)}
+					</Routes>
+				) : (
+					<LoginView />
+				)}
+			</Router>
+		</QuestContext.Provider>
 	);
 }
 
