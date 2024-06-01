@@ -67,7 +67,7 @@ const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 	};
 
 	return (
-		<MapContainer center={position} zoom={16} scrollWheelZoom={true} style={{ height: '100vh', width: '100%' }}>
+		<MapContainer center={position} zoom={16} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
