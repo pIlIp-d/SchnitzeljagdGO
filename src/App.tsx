@@ -1,20 +1,24 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Dropdown from './QuestList';
-import { QuestContext } from './QuestContext';
-import { useRef, useState, useEffect } from 'react';
-import { getCurrentLocation } from './GeoJsonHelper';
-import QuestGenerator, { Quest } from './QuestGenerator';
 import AuthUI from './firebase/AuthUI';
 import QuestView from './QuestView';
 import QuestListView from './QuestListView';
+import { QuestContext } from './QuestContext';
+import { useRef, useState, useEffect } from 'react';
+import { getCurrentLocation } from './GeoJsonHelper';
+import QuestGenerator from './QuestGenerator';
+import { getDistance } from 'geolib';
+import { NodeElement, Quest, WayElement } from './types';
 
 function App() {
 	const firstRender = useRef(true);
 
+	const [amountOfCompletedQuests, setAmountOfCompletedQuests] = useState<number>(0);
 	const [quests, setQuests] = useState<Quest[]>([]);
 	const [currentQuestIndex, setCurrentQuestIndex] = useState<number>(0);
 	const [position, setPosition] = useState<[number, number]>();
+	const [foundQuests, setFoundQuests] = useState<{ node: NodeElement; way: WayElement }[]>([]);
 
 	useEffect(() => {
 		if (firstRender.current) {
@@ -31,18 +35,66 @@ function App() {
 		}
 	});
 
+	const checkLocation = async () => {
+		const location = await getCurrentLocation();
+		const quest = quests[currentQuestIndex];
+		if (quest) {
+			for (const node of quest.nodes) {
+				// if node has already been found or is part of already found way
+				if (!foundQuests.some(foundQuest => foundQuest.node.id === node.id || foundQuest.way.nodes.includes(node.id))) {
+					const distance = getDistance(
+						{ latitude: location[0], longitude: location[1] },
+						{ latitude: node.lat, longitude: node.lon }
+					);
+					if (distance < 1000) {
+						setFoundQuests(oldQ => {
+							const newFoundQuests = [
+								...oldQ,
+								{ node: node, way: quest.ways.filter(way => way.nodes.includes(node.id))[0] },
+							];
+							setAmountOfCompletedQuests(newFoundQuests.length);
+							return newFoundQuests;
+						});
+						break;
+					}
+				}
+			}
+		} else {
+			console.log('Quest not found');
+		}
+	};
+
 	return (
 		<QuestContext.Provider value={quests}>
 			<Router>
 				<Routes>
 					<Route path="/login" element={<AuthUI />} />
 					<Route path="/" element={<Dropdown quests={quests} />} />
-					<Route path="/quest/:name" element={<QuestView />} />
-					<Route path="/dropdown" element={<QuestListView />} />
-				</Routes>
-			</Router>
-		</QuestContext.Provider>
+					<Route path="/quest/:name" element={<QuestView nodes={foundQuests.flatMap(foundQuest => foundQuest.node)} position={position} />} />
+					<Route path="/dropdown" element={<QuestListView nodes={foundQuests.flatMap(foundQuest => foundQuest.node)} position={position} />} />
+				</Routes >
+
+			</Router >
+		</QuestContext.Provider >
 	);
 }
 
 export default App;
+
+/*
+	<Route path="/" element={<Dropdown quests={quests} current={amountOfCompletedQuests} />} />
+	<Route
+		path="/quest/:name"
+		element={
+			<QuestDetails
+				checkLocation={checkLocation}
+				quest={quests[currentQuestIndex]}
+				current={amountOfCompletedQuests}
+			/>
+		}
+	/>
+	</Routes>
+	<div className="Map">
+	{position && <Map nodes={foundQuests.flatMap(foundQuest => foundQuest.node)} position={position} />}
+	</div>
+*/ 

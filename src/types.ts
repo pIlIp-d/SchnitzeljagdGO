@@ -5,6 +5,12 @@ export type NodeElement = {
 	lon: number;
 };
 
+export type WayElement = {
+	type: string;
+	id: number;
+	nodes: number[];
+};
+
 export type OSMData = {
 	version: number;
 	generator: string;
@@ -12,12 +18,12 @@ export type OSMData = {
 		timestamp_osm_base: string;
 		copyright: string;
 	};
-	elements: NodeElement[];
+	elements: NodeElement[] | WayElement[];
 };
 
 export type QueryResult = {
 	nodes: NodeElement[];
-	uniqueNodeGroups: number;
+	ways: WayElement[];
 };
 
 export type StreetViewProps = {
@@ -32,3 +38,21 @@ export type BuildingType = {
 		building: string;
 	};
 };
+
+export interface PendingQuest {
+	getQueryResult: () => Promise<QueryResult>;
+	name: string;
+}
+
+export interface Quest {
+	nodes: NodeElement[];
+	ways: WayElement[];
+	name: string;
+	current: number;
+	max: number;
+}
+
+export enum QuestType {
+	Housenumber = 0,
+	Building = 1,
+}

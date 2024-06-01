@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BuildingType, OSMData, QueryResult } from './types';
+import { BuildingType, NodeElement, OSMData, QueryResult, WayElement } from './types';
 
 export const getCurrentLocation = (): Promise<[number, number]> => {
 	return new Promise((resolve, reject) => {
@@ -45,9 +45,10 @@ export const fetchGeoJSON = async (selector: string, radius: number): Promise<OS
 
 export const fetchNodes = async (selector: string, radius: number): Promise<QueryResult> => {
 	const rawGeoJSONData = await fetchGeoJSON(selector, radius);
+	const ways = rawGeoJSONData.elements.filter(node => node.type === 'way');
 	return {
-		nodes: rawGeoJSONData.elements.filter(node => node.type === 'node'),
-		uniqueNodeGroups: rawGeoJSONData.elements.filter(node => node.type === 'way').length,
+		ways: ways as WayElement[],
+		nodes: rawGeoJSONData.elements.filter(node => node.type === 'node') as NodeElement[],
 	};
 };
 
@@ -60,14 +61,13 @@ export const getBuildingTypesInRadius = async (
 
 	const response = await queryOverpass(`
         [out:json][timeout:25];
-        wr(around:${radius},${latitude},${longitude})[building];
+        nwr(around:${radius},${latitude},${longitude})[building];
         for (t["building"])
         {
         make stat building=_.val,
             count=count(ways);
         out;
         }`);
-	console.log(response.data);
 
 	return (response.data.elements as BuildingType[]).filter(
 		e => minimumOccurences <= e.tags.count && e.tags.count <= maximumOccurences
