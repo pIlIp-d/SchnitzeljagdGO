@@ -10,9 +10,10 @@ interface Quest {
 
 interface DropdownProps {
 	quests: Quest[];
+	current: number;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ quests }) => {
+const Dropdown: React.FC<DropdownProps> = ({ quests, current }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (
@@ -31,9 +32,9 @@ const Dropdown: React.FC<DropdownProps> = ({ quests }) => {
 									<br />
 								</div>
 								<div className="progress-container">
-									<progress value={quest.current} max={quest.max} />
+									<progress value={current} max={quest.max} />
 									<span className="progress-label">
-										{quest.current}/{quest.max}
+										{current}/{quest.max}
 									</span>
 								</div>
 							</div>
