@@ -1,13 +1,13 @@
 import QuestDetails from '../QuestDetails';
 import Map from '../map';
-import { FoundQuests, Quest } from '../types';
+import { FoundQuest, Quest } from '../types';
 
 
 type QuestViewProps = {
 	quest: Quest;
 	position: [number, number];
 	checkLocation: () => void;
-	foundQuests: FoundQuests[];
+	foundQuests: FoundQuest[];
 }
 
 function QuestView({ quest, position, checkLocation, foundQuests }: QuestViewProps) {
