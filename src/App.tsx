@@ -67,28 +67,15 @@ function App() {
 			<Router>
 				<Routes>
 					<Route path="/login" element={<>Login Page</>} />
-					{position && (
+					{position &&
 						<>
-							<Route
-								path="/"
-								element={<QuestListView foundQuests={foundQuests} position={position} quests={quests} />}
-							/>
-							<Route
-								path="/quest/:name"
-								element={
-									<QuestView
-										quest={quests[currentQuestIndex]}
-										position={position}
-										foundQuests={foundQuests}
-										checkLocation={checkLocation}
-									/>
-								}
-							/>
+							<Route path="/" element={<QuestListView foundQuests={foundQuests} position={position} quests={quests} />} />
+							<Route path="/quest/:name" element={<QuestView quest={quests[currentQuestIndex]} position={position} foundQuests={foundQuests} checkLocation={checkLocation} />} />
 						</>
-					)}
-				</Routes>
-			</Router>
-		</QuestContext.Provider>
+					}
+				</Routes >
+			</Router >
+		</QuestContext.Provider >
 	);
 }
 
