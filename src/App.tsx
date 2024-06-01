@@ -1,14 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Dropdown from './QuestList';
-import QuestDetails from './QuestDetails';
-import Map from './map';
+import AuthUI from './firebase/AuthUI';
+import QuestView from './QuestView';
+import QuestListView from './QuestListView';
 import { QuestContext } from './QuestContext';
 import { useRef, useState, useEffect } from 'react';
 import { getCurrentLocation } from './GeoJsonHelper';
 import QuestGenerator from './QuestGenerator';
 import { getDistance } from 'geolib';
-import { NodeElement, Quest, WayElement } from './types';
+import { FoundQuest, NodeElement, Quest, WayElement } from './types';
+import { check } from 'prettier';
 
 function App() {
 	const firstRender = useRef(true);
@@ -17,7 +19,7 @@ function App() {
 	const [quests, setQuests] = useState<Quest[]>([]);
 	const [currentQuestIndex, setCurrentQuestIndex] = useState<number>(0);
 	const [position, setPosition] = useState<[number, number]>();
-	const [foundQuests, setFoundQuests] = useState<{ node: NodeElement; way: WayElement }[]>([]);
+	const [foundQuests, setFoundQuests] = useState<FoundQuest[]>([]);
 
 	useEffect(() => {
 		if (firstRender.current) {
@@ -67,23 +69,17 @@ function App() {
 		<QuestContext.Provider value={quests}>
 			<Router>
 				<Routes>
-					<Route path="/" element={<Dropdown quests={quests} current={amountOfCompletedQuests} />} />
-					<Route
-						path="/quest/:name"
-						element={
-							<QuestDetails
-								checkLocation={checkLocation}
-								quest={quests[currentQuestIndex]}
-								current={amountOfCompletedQuests}
-							/>
-						}
-					/>
-				</Routes>
-				<div className="Map">
-					{position && <Map nodes={foundQuests.flatMap(foundQuest => foundQuest.node)} position={position} />}
-				</div>
-			</Router>
-		</QuestContext.Provider>
+					<Route path="/login" element={<AuthUI />} />
+					{position &&
+						<>
+							<Route path="/" element={<QuestListView foundQuests={foundQuests} position={position} quests={quests} />} />
+							<Route path="/quest/:name" element={<QuestView quest={quests[currentQuestIndex]} position={position} foundQuests={foundQuests} checkLocation={checkLocation} />} />
+						</>
+					}
+				</Routes >
+
+			</Router >
+		</QuestContext.Provider >
 	);
 }
 
