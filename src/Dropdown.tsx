@@ -42,7 +42,7 @@ const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest }) => {
 			>
 
 				<Box mx={2}>
-					<Stack direction="row" justifyContent={"space-between"} alignItems={"center"}>
+					<Stack alignItems={"center"} justifyContent={"space-between"} direction={"row"}>
 						<h2 id="dialog-title">Your open Quests</h2>
 						<IconButton aria-label="close" onClick={handleClose} sx={{ height: "40px", width: "40px" }}>
 							<CloseIcon />
