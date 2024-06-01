@@ -57,7 +57,7 @@ export enum QuestType {
 	Building = 1,
 }
 
-export type FoundQuests = {
+export type FoundQuest = {
 	node: NodeElement;
 	way: WayElement;
-};
+}

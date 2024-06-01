@@ -5,9 +5,9 @@ import { useRef, useState, useEffect } from 'react';
 import { getCurrentLocation } from './GeoJsonHelper';
 import QuestGenerator from './QuestGenerator';
 import { getDistance } from 'geolib';
-import { FoundQuests, Quest } from './types';
 import QuestView from './views/QuestView';
 import QuestListView from './views/QuestListView';
+import { FoundQuest, Quest } from './types';
 
 function App() {
 	const firstRender = useRef(true);
@@ -16,7 +16,7 @@ function App() {
 	const [quests, setQuests] = useState<Quest[]>([]);
 	const [currentQuestIndex, setCurrentQuestIndex] = useState<number>(0);
 	const [position, setPosition] = useState<[number, number]>();
-	const [foundQuests, setFoundQuests] = useState<FoundQuests[]>([]);
+	const [foundQuests, setFoundQuests] = useState<FoundQuest[]>([]);
 
 	useEffect(() => {
 		if (firstRender.current) {
@@ -67,7 +67,8 @@ function App() {
 			<Router>
 				<Routes>
 					<Route path="/login" element={<>Login Page</>} />
-					{position &&
+					{
+						position &&
 						<>
 							<Route path="/" element={<QuestListView foundQuests={foundQuests} position={position} quests={quests} />} />
 							<Route path="/quest/:name" element={<QuestView quest={quests[currentQuestIndex]} position={position} foundQuests={foundQuests} checkLocation={checkLocation} />} />

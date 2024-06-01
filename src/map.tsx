@@ -36,32 +36,18 @@ interface MapParameters {
 	position: [number, number];
 }
 
-const Map: React.FC<MapParameters> = parameters => {
+const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 	const [markers, setMarkers] = useState<JSX.Element[]>([]);
-	const [position, setPosition] = useState<[number, number] | null>(null);
-
-	useEffect(() => {
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				position => {
-					setPosition([position.coords.latitude, position.coords.longitude]);
-				},
-				error => {
-					console.error('Error getting user location:', error);
-				}
-			);
-		}
-	}, []);
 
 	useEffect(() => {
 		const fetchOSMData = async () => {
 			// Hier nodes zuweisen
 			//const nodes =
-			setMarkersOnMap(parameters.nodes);
+			setMarkersOnMap(nodes);
 		};
 
 		fetchOSMData();
-	}, [parameters.nodes]);
+	}, [nodes]);
 	// Hier Node type ändern
 	const setMarkersOnMap = (nodes: NodeElement[]) => {
 		const uniqueFilteredNodes = nodes.filter(function (item, pos) {
@@ -81,11 +67,7 @@ const Map: React.FC<MapParameters> = parameters => {
 	};
 
 	return (
-		<MapContainer
-			center={parameters.position}
-			zoom={13}
-			scrollWheelZoom={true}
-			style={{ height: '100vh', width: '100%' }}>
+		<MapContainer center={position} zoom={16} scrollWheelZoom={true} style={{ height: '100vh', width: '100%' }}>
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
