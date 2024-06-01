@@ -1,16 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import Dropdown from './QuestList';
-import AuthUI from './firebase/AuthUI';
-import QuestView from './QuestView';
-import QuestListView from './QuestListView';
 import { QuestContext } from './QuestContext';
 import { useRef, useState, useEffect } from 'react';
 import { getCurrentLocation } from './GeoJsonHelper';
 import QuestGenerator from './QuestGenerator';
 import { getDistance } from 'geolib';
-import { FoundQuest, NodeElement, Quest, WayElement } from './types';
-import { check } from 'prettier';
+import QuestView from './views/QuestView';
+import QuestListView from './views/QuestListView';
+import { FoundQuest, Quest } from './types';
 
 function App() {
 	const firstRender = useRef(true);
@@ -69,15 +66,15 @@ function App() {
 		<QuestContext.Provider value={quests}>
 			<Router>
 				<Routes>
-					<Route path="/login" element={<AuthUI />} />
-					{position &&
+					<Route path="/login" element={<>Login Page</>} />
+					{
+						position &&
 						<>
 							<Route path="/" element={<QuestListView foundQuests={foundQuests} position={position} quests={quests} />} />
 							<Route path="/quest/:name" element={<QuestView quest={quests[currentQuestIndex]} position={position} foundQuests={foundQuests} checkLocation={checkLocation} />} />
 						</>
 					}
 				</Routes >
-
 			</Router >
 		</QuestContext.Provider >
 	);
