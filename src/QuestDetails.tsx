@@ -1,35 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Quest } from './types';
 
 type QuestDetailsProps = {
 	checkLocation: () => void;
 	quest: Quest;
-	current: number;
 };
 
-const QuestDetails: React.FC<QuestDetailsProps> = ({ checkLocation, quest, current }) => {
+const QuestDetails: React.FC<QuestDetailsProps> = ({ checkLocation, quest }) => {
 	return (
-		<div>
-			{quest ? (
-				<>
-					<div className="questDetails-container">
-						<h1>{quest.name}</h1>
-						<div className="progress-container">
-							<progress value={current} max={quest.max} />
-							<span className="progress-label">
-								{current}/{quest.max}
-							</span>
-						</div>
-						<div className="button-container">
-							<button className="location-button" onClick={checkLocation}>
-								Check Location
-							</button>
-						</div>
+		<div className="questDetails-container">
+			<h1>{quest.name}</h1>
+			{quest.doneNodes.length == quest.max
+				? <>
+					<div className="progress-container progress-container-done">
+						<progress value={quest.doneNodes.length} max={quest.max} />
+						<span className="progress-label">
+							{quest.doneNodes.length}/{quest.max}
+						</span>
 					</div>
 				</>
-			) : (
-				<p>Quest not found</p>
-			)}
+				: <>
+					<div className="progress-container">
+						<progress value={quest.doneNodes.length} max={quest.max} />
+						<span className="progress-label">
+							{quest.doneNodes.length}/{quest.max}
+						</span>
+					</div>
+					<div className="button-container">
+						<button className="location-button" onClick={checkLocation}>
+							Check Location
+						</button>
+					</div>
+				</>
+			}
 		</div>
 	);
 };

@@ -40,24 +40,19 @@ export type BuildingType = {
 };
 
 export interface PendingQuest {
-	getQueryResult: () => Promise<QueryResult>;
+	selector: string;
 	name: string;
 }
 
 export interface Quest {
-	nodes: NodeElement[];
-	ways: WayElement[];
+	selector: string,
+	doneWays: number[];
+	doneNodes: NodeElement[];
 	name: string;
-	current: number;
 	max: number;
 }
 
 export enum QuestType {
 	Housenumber = 0,
 	Building = 1,
-}
-
-export type FoundQuest = {
-	node: NodeElement;
-	way: WayElement;
 }
