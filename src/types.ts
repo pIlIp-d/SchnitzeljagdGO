@@ -56,3 +56,8 @@ export enum QuestType {
 	Housenumber = 0,
 	Building = 1,
 }
+
+export type FoundQuest = {
+	node: NodeElement;
+	way: WayElement;
+}

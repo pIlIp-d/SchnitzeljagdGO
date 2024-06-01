@@ -1,37 +1,23 @@
 import { useRef, useState, useEffect } from 'react';
-import { getCurrentLocation } from './GeoJsonHelper';
 import QuestDetails from './QuestDetails';
-import QuestGenerator, { Quest } from './QuestGenerator';
 import Map from './map';
+import { FoundQuest, Quest } from './types';
 
-function QuestView() {
-	const firstRender = useRef(true);
 
-	const [quests, setQuests] = useState<Quest[]>([]);
-	const [currentQuestIndex, setCurrentQuestIndex] = useState<number>(0);
-	const [position, setPosition] = useState<[number, number]>();
+type QuestViewProps = {
+	quest: Quest;
+	position: [number, number];
+	checkLocation: () => void;
+	foundQuests: FoundQuest[];
+}
 
-	useEffect(() => {
-		if (firstRender.current) {
-			firstRender.current = false;
-			QuestGenerator()
-				.then(quest => {
-					console.log(quest);
-					setQuests(oldQuests => [...oldQuests, quest]);
-				})
-				.catch(e => console.error(e));
-			getCurrentLocation().then(pos => {
-				setPosition(pos);
-			});
-		}
-	});
-
+function QuestView({ quest, position, checkLocation, foundQuests }: QuestViewProps) {
 	return (
 		<>
-			<QuestDetails />
+			<QuestDetails quest={quest} checkLocation={checkLocation} current={foundQuests.length} />
 			<div className="Map">
 				{position && (
-					<Map nodes={quests.length > currentQuestIndex ? quests[currentQuestIndex].nodes : []} position={position} />
+					<Map nodes={foundQuests.flatMap(foundQuest => foundQuest.node)} position={position} />
 				)}
 			</div>
 		</>

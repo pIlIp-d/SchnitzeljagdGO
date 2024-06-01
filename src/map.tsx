@@ -38,20 +38,6 @@ interface MapParameters {
 
 const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 	const [markers, setMarkers] = useState<JSX.Element[]>([]);
-	const [position, setPosition] = useState<[number, number] | null>(null);
-
-	useEffect(() => {
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				position => {
-					setPosition([position.coords.latitude, position.coords.longitude]);
-				},
-				error => {
-					console.error('Error getting user location:', error);
-				}
-			);
-		}
-	}, []);
 
 	useEffect(() => {
 		const fetchOSMData = async () => {
@@ -81,7 +67,7 @@ const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 	};
 
 	return (
-		<MapContainer center={position} zoom={13} scrollWheelZoom={true} style={{ height: '100vh', width: '100%' }}>
+		<MapContainer center={position} zoom={16} scrollWheelZoom={true} style={{ height: '100vh', width: '100%' }}>
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -9,7 +9,8 @@ import { useRef, useState, useEffect } from 'react';
 import { getCurrentLocation } from './GeoJsonHelper';
 import QuestGenerator from './QuestGenerator';
 import { getDistance } from 'geolib';
-import { NodeElement, Quest, WayElement } from './types';
+import { FoundQuest, NodeElement, Quest, WayElement } from './types';
+import { check } from 'prettier';
 
 function App() {
 	const firstRender = useRef(true);
@@ -18,7 +19,7 @@ function App() {
 	const [quests, setQuests] = useState<Quest[]>([]);
 	const [currentQuestIndex, setCurrentQuestIndex] = useState<number>(0);
 	const [position, setPosition] = useState<[number, number]>();
-	const [foundQuests, setFoundQuests] = useState<{ node: NodeElement; way: WayElement }[]>([]);
+	const [foundQuests, setFoundQuests] = useState<FoundQuest[]>([]);
 
 	useEffect(() => {
 		if (firstRender.current) {
@@ -69,9 +70,12 @@ function App() {
 			<Router>
 				<Routes>
 					<Route path="/login" element={<AuthUI />} />
-					<Route path="/" element={<Dropdown quests={quests} />} />
-					<Route path="/quest/:name" element={<QuestView nodes={foundQuests.flatMap(foundQuest => foundQuest.node)} position={position} />} />
-					<Route path="/dropdown" element={<QuestListView nodes={foundQuests.flatMap(foundQuest => foundQuest.node)} position={position} />} />
+					{position &&
+						<>
+							<Route path="/" element={<QuestListView foundQuests={foundQuests} position={position} quests={quests} />} />
+							<Route path="/quest/:name" element={<QuestView quest={quests[currentQuestIndex]} position={position} foundQuests={foundQuests} checkLocation={checkLocation} />} />
+						</>
+					}
 				</Routes >
 
 			</Router >
@@ -80,21 +84,3 @@ function App() {
 }
 
 export default App;
-
-/*
-	<Route path="/" element={<Dropdown quests={quests} current={amountOfCompletedQuests} />} />
-	<Route
-		path="/quest/:name"
-		element={
-			<QuestDetails
-				checkLocation={checkLocation}
-				quest={quests[currentQuestIndex]}
-				current={amountOfCompletedQuests}
-			/>
-		}
-	/>
-	</Routes>
-	<div className="Map">
-	{position && <Map nodes={foundQuests.flatMap(foundQuest => foundQuest.node)} position={position} />}
-	</div>
-*/ 
