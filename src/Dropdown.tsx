@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
 import { Quest } from './types';
-import { Box, Button, Dialog, Divider, IconButton, LinearProgress, List, ListItem, ListItemButton, ListItemText, Modal, Paper, Stack, Typography, styled } from '@mui/material';
+import { Box, Button, Dialog, IconButton, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ProgressBar from './ProgressBar';
 import CloseIcon from '@mui/icons-material/Close';
-import { FastForward } from '@mui/icons-material';
 
 interface DropdownProps {
 	quests: Quest[];
 	selectQuest: (quest: Quest) => void;
+	addQuest: () => void;
 }
 
 
-const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest }) => {
+const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest, addQuest }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
 
 	function handleClose() {
-		console.log("closed Dialog");
 		setIsOpen(false);
 	}
 
@@ -53,7 +51,7 @@ const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest }) => {
 					{quests.map((quest, index) => (
 						<>
 							<ListItem key={index} onClick={() => handleListItemClick(quest)} >
-								<ListItemButton className='list-item-button-shadow'>
+								<ListItemButton sx={{ boxShadow: 2 }}  >
 									<ListItemText
 										primary={quest.name}
 										secondary={
@@ -65,6 +63,9 @@ const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest }) => {
 						</>
 					))}
 				</List>
+				<Button onClick={addQuest}>
+					Get a new Quest
+				</Button>
 			</Dialog >
 		</>
 	);

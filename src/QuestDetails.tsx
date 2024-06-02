@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Quest } from './types';
+import ProgressBar from './ProgressBar';
+import { Button, Typography, Box } from '@mui/material';
 
 type QuestDetailsProps = {
 	checkLocation: () => void;
@@ -8,32 +10,21 @@ type QuestDetailsProps = {
 
 const QuestDetails: React.FC<QuestDetailsProps> = ({ checkLocation, quest }) => {
 	return (
-		<div className="questDetails-container">
-			<h1>{quest.name}</h1>
+		<Box display={"flex"} flexDirection={'column'}>
+
+			<Typography >
+				{quest.name}
+			</Typography>
 			{quest.doneNodes.length == quest.max
-				? <>
-					<div className="progress-container progress-container-done">
-						<progress value={quest.doneNodes.length} max={quest.max} />
-						<span className="progress-label">
-							{quest.doneNodes.length}/{quest.max}
-						</span>
-					</div>
-				</>
+				? <ProgressBar max={quest.max} current={quest.doneNodes.length} />
 				: <>
-					<div className="progress-container">
-						<progress value={quest.doneNodes.length} max={quest.max} />
-						<span className="progress-label">
-							{quest.doneNodes.length}/{quest.max}
-						</span>
-					</div>
-					<div className="button-container">
-						<button className="location-button" onClick={checkLocation}>
-							Check Location
-						</button>
-					</div>
+					<ProgressBar max={quest.max} current={quest.doneNodes.length} />
+					<Button onClick={checkLocation}>
+						Check Location
+					</Button>
 				</>
 			}
-		</div>
+		</Box>
 	);
 };
 
