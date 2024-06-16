@@ -30,8 +30,7 @@ function getLengthOfEnum<T extends Record<string, string | number>>(e: T): numbe
 
 const QuestGenerator = async (position: [number, number], quests: Quest[]): Promise<Quest> => {
 	let maxTries = 20;
-	while (true) {
-		if (maxTries === 0) throw new Error("Couldn't find Quest for your location.");
+	while (maxTries > 0) {
 		maxTries--;
 		const randomQuestType = Math.floor(Math.random() * getLengthOfEnum(QuestType));
 		const randomPendingQuest = await questBuilder(randomQuestType, position);
@@ -49,6 +48,7 @@ const QuestGenerator = async (position: [number, number], quests: Quest[]): Prom
 			};
 		// else try again;
 	}
+	throw new Error("Couldn't find Quest for your location.");
 };
 
 export default QuestGenerator;
