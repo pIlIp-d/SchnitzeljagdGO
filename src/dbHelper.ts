@@ -30,8 +30,14 @@ export default {
     },
     async getQuests(userId: string) {
         const snapshot = await getDocs(collection(db, `users/${userId}/quests`));
-        return snapshot.docs.map((d) => {
+        const questList = snapshot.docs.map((d) => {
             return { ...d.data() as Quest, id: d.id };
         });
+        // list -> map
+        const questMap: { [key: string]: Quest } = {};
+        for (const quest of questList) {
+            questMap[quest.id as string] = quest;
+        }
+        return questMap;
     }
 }

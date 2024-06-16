@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Quest } from './types';
-import { Box, Button, CircularProgress, Dialog, IconButton, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
+import { Box, Button, CircularProgress, Dialog, IconButton, List, ListItem, ListItemButton, Stack } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ProgressBar from './ProgressBar';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface DropdownProps {
-	quests: Quest[];
+	quests: { [key: string]: Quest };
 	selectQuest: (quest: Quest) => void;
 	addQuest: () => void;
 }
@@ -56,8 +56,8 @@ const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest, addQuest }) =>
 					</Stack>
 				</Box>
 				<List>
-					{quests.map((quest, index) => (
-						<ListItem key={index} onClick={() => handleListItemClick(quest)} >
+					{Object.values(quests).map((quest) => (
+						<ListItem key={quest.id} onClick={() => handleListItemClick(quest)} >
 							<ListItemButton sx={{ boxShadow: 2 }}  >
 								<div>
 									<div>{quest.name}</div>

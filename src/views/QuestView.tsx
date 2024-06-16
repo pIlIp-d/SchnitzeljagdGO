@@ -4,11 +4,12 @@ import Map from '../map';
 import { NodeElement, Quest, WayElement } from '../types';
 import Dropdown from '../Dropdown';
 import QuestGenerator from '../QuestGenerator';
-import { fetchNodes, getCurrentLocation } from '../GeoJsonHelper';
+import { fetchNodes } from '../GeoJsonHelper';
 import { Box, Typography, IconButton } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import dbHelper from '../dbHelper';
 import { MAX_DIST_TO_NODE } from '../config';
+import LocationButton from '../LocationButton';
 
 type QuestViewProps = {
 	userId: string;
@@ -17,58 +18,59 @@ type QuestViewProps = {
 function QuestView({ userId }: QuestViewProps) {
 	const firstRender = useRef(true);
 
-	// TODO change to map with real quest ID -> add router + url to that questview 
-	const [selectedQuestId, setSelectedQuestId] = useState<number | null>(null);
+	const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
 	// TODO limit amount of open quests + add extra tab for done quests or other point system to not load all quests every time
-	const [quests, setQuests] = useState<Quest[]>([]);
-	const [position, setPosition] = useState<[number, number]>();
+	const [quests, setQuests] = useState<{ [key: string]: Quest }>({});
+	const [position, setPosition] = useState<[number, number]>([0, 0]);
 	const [doneNodes, setDoneNodes] = useState<NodeElement[]>([]);
+
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(false);
 
 	function addQuest() {
 		console.log(quests);
-		QuestGenerator()
-			.then(quest => {
-				dbHelper.addNewQuest(userId, quest).then(docRef => {
-					quest.id = docRef.id;
-					setQuests(oldQuests => [...oldQuests, quest]);
-				});
-			})
-			.catch(e => console.error(e));
+		// maybe reask for position
+
+		loadLocation().then((pos) => {
+			QuestGenerator(pos)
+				.then(quest => {
+					dbHelper.addNewQuest(userId, quest).then(docRef => {
+						quest.id = docRef.id;
+						setQuests(oldQuests => {
+							oldQuests[docRef.id] = quest;
+							return { ...oldQuests };
+						});
+					});
+				})
+				.catch(e => console.error(e));
+		})
 	}
 
 	useEffect(() => {
 		if (firstRender.current) {
 			firstRender.current = false;
+			loadLocation();
 			dbHelper.getQuests(userId).then(quests => {
-				console.log(quests);
 				setQuests(quests);
 			}).then(() => {
 				dbHelper.getDoneNodes(userId).then((nodes) => {
 					setDoneNodes(nodes);
 				})
-			}); getCurrentLocation().then(pos => {
-				setPosition(pos);
 			});
 		}
 	}, [userId]);
 
 	const addFoundNode = (node: NodeElement, way: WayElement, quest: Quest) => {
-		setQuests((oldQuests) => {
-			return oldQuests.map((q) => {
-				if (quest.id && q.id === quest.id) {
-					dbHelper.addFoundNode(userId, q.id, way.id, node).then((r) => {
-						setDoneNodes(oldNodes => [...oldNodes, r]);
-					});
-				}
-				return q;
-			})
-		});
+		if (quest.id)
+			dbHelper.addFoundNode(userId, quest.id, way.id, node).then((r) => {
+				setDoneNodes(oldNodes => [...oldNodes, r]);
+			});
 	}
 
 	const checkLocation = async () => {
 		if (selectedQuestId !== null) {
 			const quest = quests[selectedQuestId];
-			const { nodes, ways } = await fetchNodes(quest.selector, MAX_DIST_TO_NODE);
+			const { nodes, ways } = await fetchNodes(quest.selector, position, MAX_DIST_TO_NODE);
 
 			let success = false;
 			for (const node of nodes) {
@@ -92,18 +94,44 @@ function QuestView({ userId }: QuestViewProps) {
 	};
 
 	function setSelectedQuest(quest: Quest) {
-		setSelectedQuestId(quests.indexOf(quest));
+		setSelectedQuestId(quest.id as string);
 	}
 
 	useEffect(() => {
 		setQuests((oldQuests) => {
-			return oldQuests.map(q => {
-				q.doneNodes = doneNodes.filter(n => q.id === n.questID);
-				return q;
+			Object.keys(oldQuests).forEach(key => {
+				oldQuests[key].doneNodes = doneNodes.filter(n => n.questID === key);
 			});
+			return { ...oldQuests };
 		});
 	}, [doneNodes]);
 
+
+	const getCurrentLocation = (): Promise<[number, number]> => {
+		return new Promise((resolve, reject) => {
+			if (navigator.geolocation)
+				navigator.geolocation.getCurrentPosition(
+					position => resolve([position.coords.latitude, position.coords.longitude]),
+					reject
+				);
+			else reject('Geolocation is not supported by this browser.');
+		});
+	};
+
+	const loadLocation = (): Promise<[number, number]> => {
+		return new Promise((resolve) => {
+			setLoading(true);
+			setError(false);
+			getCurrentLocation().then(pos => {
+				setError(false);
+				setLoading(false);
+				setPosition(pos);
+				resolve(pos);
+			}).catch(() =>
+				setError(true)
+			);
+		});
+	}
 	return (
 		<Box display={"flex"} width={"100%"} height={"100%"} flexDirection={"column"}>
 			<Typography variant="h2" component="div" >
@@ -128,6 +156,7 @@ function QuestView({ userId }: QuestViewProps) {
 						<Map nodes={quests[selectedQuestId].doneNodes ?? []} position={position} />
 					))}
 			</Box>
+			<LocationButton loadLocation={loadLocation} error={error} loading={loading} />
 		</Box>
 	);
 }

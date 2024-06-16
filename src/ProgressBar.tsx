@@ -7,7 +7,7 @@ function ProgressBar(props: LinearProgressProps & { current: number, max: number
     useEffect(() => {
         const current = Math.min(props.current, props.max);
         setProgress(current / props.max * 100);
-    }, [props.current, props.max]);
+    }, [props]);
 
     return <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Box sx={{ width: '100%', mr: 1 }}>
