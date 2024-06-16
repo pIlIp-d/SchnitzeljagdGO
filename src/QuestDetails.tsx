@@ -15,10 +15,10 @@ const QuestDetails: React.FC<QuestDetailsProps> = ({ checkLocation, quest }) => 
 			<Typography >
 				{quest.name}
 			</Typography>
-			{quest.doneNodes.length == quest.max
-				? <ProgressBar max={quest.max} current={quest.doneNodes.length} />
+			{quest.doneNodes?.length == quest.max
+				? <ProgressBar max={quest.max} current={quest.doneNodes?.length} />
 				: <>
-					<ProgressBar max={quest.max} current={quest.doneNodes.length} />
+					<ProgressBar max={quest.max} current={quest.doneNodes?.length ?? 0} />
 					<Button onClick={checkLocation}>
 						Check Location
 					</Button>

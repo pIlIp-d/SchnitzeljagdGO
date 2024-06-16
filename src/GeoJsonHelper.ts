@@ -1,50 +1,31 @@
 import axios from 'axios';
 import { BuildingType, NodeElement, OSMData, QueryResult, WayElement } from './types';
 
-export const getCurrentLocation = (): Promise<[number, number]> => {
-    return new Promise((resolve, reject) => {
-        if (navigator.geolocation)
-            navigator.geolocation.getCurrentPosition(position =>
-                resolve([position.coords.latitude, position.coords.longitude])
-            );
-        else reject('Geolocation is not supported by this browser.');
-    });
-};
-
 const queryOverpass = (query: string) => {
     return axios.post('https://overpass-api.de/api/interpreter', `data=${encodeURIComponent(query)}`);
 };
 
-export const fetchGeoJSON = async (selector: string, radius: number): Promise<OSMData> => {
+export const fetchGeoJSON = (selector: string, position: [number, number], radius: number): Promise<OSMData> => {
     return new Promise((resolve, reject) => {
-        getCurrentLocation().then(
-            async coords => {
-                const [latitude, longitude] = coords;
-                try {
-                    const response = await queryOverpass(
-                        `[out:json];
-                        (
-                            nwr(around:${radius},${latitude},${longitude})${selector};
-                        );
-                        out body;
-                        >;
-                        out skel qt;`
-                    );
-
-                    resolve(response.data);
-                } catch (err) {
-                    reject(err as string);
-                }
-            },
-            err => {
-                reject(`Geolocation error: ${err.message}`);
-            }
-        );
+        const [latitude, longitude] = position;
+        try {
+            queryOverpass(
+                `[out:json];
+                (
+                    nwr(around:${radius},${latitude},${longitude})${selector};
+                );
+                out body;
+                >;
+                out skel qt;`
+            ).then((response) => resolve(response.data));
+        } catch (err) {
+            reject(err as string);
+        }
     });
 };
 
-export const fetchNodes = async (selector: string, radius: number): Promise<QueryResult> => {
-    const rawGeoJSONData = await fetchGeoJSON(selector, radius);
+export const fetchNodes = async (selector: string, position: [number, number], radius: number): Promise<QueryResult> => {
+    const rawGeoJSONData = await fetchGeoJSON(selector, position, radius);
     const ways = rawGeoJSONData.elements.filter(node => node.type === 'way');
     return {
         ways: ways as WayElement[],
@@ -53,11 +34,12 @@ export const fetchNodes = async (selector: string, radius: number): Promise<Quer
 };
 
 export const getBuildingTypesInRadius = async (
+    position: [number, number],
     minimumOccurences: number,
     maximumOccurences: number,
     radius: number
 ) => {
-    const [latitude, longitude] = await getCurrentLocation();
+    const [latitude, longitude] = position;
 
     const response = await queryOverpass(`
         [out:json][timeout:25];

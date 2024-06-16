@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Quest } from './types';
-import { Box, Button, Dialog, IconButton, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
+import { Box, Button, CircularProgress, Dialog, IconButton, List, ListItem, ListItemButton, Stack } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ProgressBar from './ProgressBar';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface DropdownProps {
-	quests: Quest[];
+	quests: { [key: string]: Quest };
 	selectQuest: (quest: Quest) => void;
 	addQuest: () => void;
 }
@@ -14,7 +14,7 @@ interface DropdownProps {
 
 const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest, addQuest }) => {
 	const [isOpen, setIsOpen] = useState(false);
-
+	const [isLoading, setIsLoading] = useState(true);
 
 	function handleClose() {
 		setIsOpen(false);
@@ -24,6 +24,15 @@ const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest, addQuest }) =>
 		handleClose();
 		selectQuest(quest);
 	};
+
+	const pressGetNewQuest = () => {
+		setIsLoading(true);
+		addQuest();
+	}
+
+	useEffect(() => {
+		setIsLoading(false);
+	}, [quests]);
 
 	return (
 		<>
@@ -38,7 +47,6 @@ const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest, addQuest }) =>
 				open={isOpen}
 				onClose={handleClose}
 			>
-
 				<Box mx={2}>
 					<Stack alignItems={"center"} justifyContent={"space-between"} direction={"row"}>
 						<h2 id="dialog-title">Your open Quests</h2>
@@ -48,22 +56,22 @@ const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest, addQuest }) =>
 					</Stack>
 				</Box>
 				<List>
-					{quests.map((quest, index) => (
-						<>
-							<ListItem key={index} onClick={() => handleListItemClick(quest)} >
-								<ListItemButton sx={{ boxShadow: 2 }}  >
-									<ListItemText
-										primary={quest.name}
-										secondary={
-											<ProgressBar current={quest.doneNodes.length} max={quest.max} />
-										}
-									/>
-								</ListItemButton>
-							</ListItem >
-						</>
+					{Object.values(quests).map((quest) => (
+						<ListItem key={quest.id} onClick={() => handleListItemClick(quest)} >
+							<ListItemButton sx={{ boxShadow: 2 }}  >
+								<div>
+									<div>{quest.name}</div>
+									<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
+								</div>
+							</ListItemButton>
+						</ListItem >
 					))}
 				</List>
-				<Button onClick={addQuest}>
+				{
+					isLoading &&
+					<Box sx={{ display: 'flex', justifyContent: "Center" }} ><CircularProgress /></Box>
+				}
+				<Button onClick={pressGetNewQuest}>
 					Get a new Quest
 				</Button>
 			</Dialog >

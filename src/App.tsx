@@ -6,16 +6,15 @@ import LoginView from './firebase/LoginView';
 import { checkUserStatus } from './firebase/AuthStatus';
 
 function App() {
-
-	const [loggedIn, setLoggedIn] = useState(false);
+	const [userId, setUserId] = useState<string | null>(null);
 
 	useEffect(() => {
 		checkUserStatus()
-			.then(({ user }) => {
+			.then(async ({ user }) => {
 				if (user) {
-					setLoggedIn(true);
+					setUserId(user.uid);
 				} else {
-					setLoggedIn(false);
+					setUserId(null);
 				}
 			})
 			.catch(error => {
@@ -23,13 +22,12 @@ function App() {
 			});
 	});
 
-
 	return (
 		<Router>
-			{loggedIn ? (
+			{userId ? (
 				<Routes>
 					<Route path="/login" element={<LoginView />} />
-					<Route path="/" element={<QuestView />} />
+					<Route path="/" element={<QuestView userId={userId} />} />
 				</Routes>
 			) : (
 				<LoginView />

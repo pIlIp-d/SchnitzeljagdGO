@@ -1,6 +1,6 @@
 // MapComponent.tsx
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import UserPin from './assets/UserPin.png';
 
@@ -11,6 +11,7 @@ import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import { NodeElement } from './types';
 import StreetView from './OpenStreetView';
+
 // Fixing the default icon issue
 const DefaultIcon = L.icon({
 	iconRetinaUrl,
@@ -42,7 +43,6 @@ const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 	useEffect(() => {
 		const fetchOSMData = async () => {
 			// Hier nodes zuweisen
-			//const nodes =
 			setMarkersOnMap(nodes);
 		};
 
@@ -60,11 +60,20 @@ const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 					<br />
 					Lat: {node.lat}, Lon: {node.lon}
 					<StreetView latitude={node.lat} longitude={node.lon} />
+					{/*OSM NODE INFO https://www.openstreetmap.org/node/305293190 or ...org/way/<id>*/}
 				</Popup>
 			</Marker>
 		));
 		setMarkers(newMarkers);
 	};
+
+	const RecenterAutomatically = ({ pos }: { pos: [number, number] }) => {
+		const map = useMap();
+		useEffect(() => {
+			map.setView(pos);
+		}, [pos, map]);
+		return null;
+	}
 
 	return (
 		<MapContainer center={position} zoom={16} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
@@ -72,12 +81,14 @@ const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
+			{/*url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"*/}
 			{position && (
 				<Marker position={position} icon={UserIcon}>
 					<Popup>You are here.</Popup>
 				</Marker>
 			)}
 			{markers}
+			<RecenterAutomatically pos={position} />
 		</MapContainer>
 	);
 };
