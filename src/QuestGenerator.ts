@@ -22,21 +22,30 @@ const questBuilder = async (questType: QuestType, position: [number, number]) =>
 	}
 };
 
-const QuestGenerator = async (position: [number, number]): Promise<Quest> => {
+function getLengthOfEnum<T extends Record<string, string | number>>(e: T): number {
+	return Object.values(e).filter(
+		(value) => typeof value === 'string'
+	).length;
+}
+
+const QuestGenerator = async (position: [number, number], quests: Quest[]): Promise<Quest> => {
 	let maxTries = 20;
 	while (true) {
 		if (maxTries === 0) throw new Error("Couldn't find Quest for your location.");
 		maxTries--;
-		const randomQuestType = Math.floor(Math.random() * (Object.keys(QuestType).length - 1));
+		const randomQuestType = Math.floor(Math.random() * getLengthOfEnum(QuestType));
 		const randomPendingQuest = await questBuilder(randomQuestType, position);
 		const data = await fetchNodes(randomPendingQuest.selector, position, SEARCH_RADIUS);
 
 		// if it has at least required amount of nodes
-		if (data.ways.length >= MIN_OCCURENCES_FOR_QUEST)
+		if (
+			data.ways.length >= MIN_OCCURENCES_FOR_QUEST
+			&& !quests.some(q => q.selector === randomPendingQuest.selector)
+		)
 			return {
 				selector: randomPendingQuest.selector,
 				name: randomPendingQuest.name,
-				max: data.ways.length,
+				max: Math.ceil(data.ways.length / 2),
 			};
 		// else try again;
 	}

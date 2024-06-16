@@ -13,18 +13,25 @@ body,
 }
 
 
-.locationRefreshButton {
+.customOverlayIconButton {
 	position: fixed !important;
-	right: 15px;
-	bottom: 30px;
-	z-index: 100000;
+	z-index: 1000;
 }
 
-.locationRefreshIcon {
+.customOverlayIcon {
 	height: 1em;
 	width: 1em;
 	background: white;
 	padding: 0.5rem;
 	overflow: hidden;
 	border-radius: 100%;
+}
+
+.questOverlayCard {
+	position: fixed;
+	margin: auto;
+	top: 2rem;
+	left: 50%;
+	transform: translate(-50%, 0);
+	z-index: 1000;
 }

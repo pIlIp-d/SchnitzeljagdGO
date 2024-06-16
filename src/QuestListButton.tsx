@@ -1,20 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Quest } from './types';
-import { Box, Button, CircularProgress, Dialog, IconButton, List, ListItem, ListItemButton, Stack } from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { Box, Button, CircularProgress, Dialog, IconButton, List, ListItem, ListItemButton, Snackbar, Stack } from '@mui/material';
 import ProgressBar from './ProgressBar';
 import CloseIcon from '@mui/icons-material/Close';
+import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 
-interface DropdownProps {
+interface QuestListButtonProps {
 	quests: { [key: string]: Quest };
 	selectQuest: (quest: Quest) => void;
 	addQuest: () => void;
+	error: boolean;
 }
 
 
-const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest, addQuest }) => {
+const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, addQuest, error }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [snackBarOpen, setSnackBarOpen] = useState(false);
+	useEffect(() => {
+		if (error)
+			setSnackBarOpen(true);
+	}, [error]);
+
+
 
 	function handleClose() {
 		setIsOpen(false);
@@ -30,19 +38,40 @@ const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest, addQuest }) =>
 		addQuest();
 	}
 
+	const action = (
+		<Fragment>
+			<Button color="primary" size="small" onClick={addQuest}>
+				RETRY
+			</Button>
+			<IconButton
+				size="small"
+				aria-label="close"
+				color="inherit"
+				onClick={() => setSnackBarOpen(false)}
+			>
+				<CloseIcon fontSize="small" />
+			</IconButton>
+		</Fragment>
+	);
+
+
 	useEffect(() => {
 		setIsLoading(false);
 	}, [quests]);
 
 	return (
 		<>
-			<Button
-				variant="outlined"
-				onClick={() => setIsOpen(true)}
-				startIcon={< KeyboardArrowDownIcon />}
+			<IconButton
+				aria-label="open-quest-list" onClick={() => setIsOpen(true)}
+				className="customOverlayIconButton"
+				sx={{
+					top: "30px",
+					right: "15px"
+				}}
 			>
-				Quests
-			</Button>
+				<ChecklistRtlIcon className="customOverlayIcon" />
+			</IconButton >
+
 			<Dialog aria-labelledby="dialog-title" aria-describedby="dialog-description"
 				open={isOpen}
 				onClose={handleClose}
@@ -75,8 +104,15 @@ const Dropdown: React.FC<DropdownProps> = ({ quests, selectQuest, addQuest }) =>
 					Get a new Quest
 				</Button>
 			</Dialog >
+			<Snackbar
+				open={snackBarOpen}
+				autoHideDuration={5000}
+				onClose={() => setSnackBarOpen(false)}
+				message="No more Quests near you."
+				action={action}
+			/>
 		</>
 	);
 };
 
-export default Dropdown;
+export default QuestListButton;

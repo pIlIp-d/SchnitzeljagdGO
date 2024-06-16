@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import QuestDetails from '../QuestDetails';
 import Map from '../map';
 import { NodeElement, Quest, WayElement } from '../types';
-import Dropdown from '../Dropdown';
 import QuestGenerator from '../QuestGenerator';
 import { fetchNodes } from '../GeoJsonHelper';
-import { Box, Typography, IconButton } from '@mui/material';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { Box } from '@mui/material';
 import dbHelper from '../dbHelper';
 import { MAX_DIST_TO_NODE } from '../config';
 import LocationButton from '../LocationButton';
+import QuestListButton from '../QuestListButton';
+import QuestDetails from '../QuestDetails';
 
 type QuestViewProps = {
 	userId: string;
@@ -26,13 +25,12 @@ function QuestView({ userId }: QuestViewProps) {
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(false);
+	const [questLoadingError, setQuestLoadingError] = useState(false);
 
 	function addQuest() {
-		console.log(quests);
-		// maybe reask for position
-
 		loadLocation().then((pos) => {
-			QuestGenerator(pos)
+			setQuestLoadingError(false);
+			QuestGenerator(pos, Object.values(quests))
 				.then(quest => {
 					dbHelper.addNewQuest(userId, quest).then(docRef => {
 						quest.id = docRef.id;
@@ -42,7 +40,9 @@ function QuestView({ userId }: QuestViewProps) {
 						});
 					});
 				})
-				.catch(e => console.error(e));
+				.catch(() => {
+					setQuestLoadingError(true);
+				});
 		})
 	}
 
@@ -134,20 +134,7 @@ function QuestView({ userId }: QuestViewProps) {
 	}
 	return (
 		<Box display={"flex"} width={"100%"} height={"100%"} flexDirection={"column"}>
-			<Typography variant="h2" component="div" >
-				SchnitzeljagdGO
-			</Typography>
-			{selectedQuestId === null ? (
-				<Dropdown quests={quests} selectQuest={setSelectedQuest} addQuest={addQuest} />
-			) : (
-				<Box display={"flex"} flexDirection={'row'}>
-					<IconButton aria-label="back" onClick={() => setSelectedQuestId(null)} sx={{ height: "40px", width: "40px" }}>
-						<ArrowBackIosIcon />
-					</IconButton>
-					<QuestDetails quest={quests[selectedQuestId]} checkLocation={checkLocation} />
-				</Box>
-			)}
-			<Box flexGrow={1} width={"100%"}>
+			<Box flexGrow={1} width={"100%"} height={"100%"}>
 				{position && quests && (selectedQuestId === null ?
 					(
 						<Map nodes={doneNodes} position={position} />
@@ -156,6 +143,12 @@ function QuestView({ userId }: QuestViewProps) {
 						<Map nodes={quests[selectedQuestId].doneNodes ?? []} position={position} />
 					))}
 			</Box>
+
+			{selectedQuestId !== null && (
+				<QuestDetails quest={quests[selectedQuestId]} checkLocation={checkLocation} onBackClick={() => setSelectedQuestId(null)} />
+			)}
+
+			<QuestListButton quests={quests} selectQuest={setSelectedQuest} addQuest={addQuest} error={questLoadingError} />
 			<LocationButton loadLocation={loadLocation} error={error} loading={loading} />
 		</Box>
 	);
