@@ -37,12 +37,16 @@ const LocationButton: React.FC<LocationButtonParameters> = ({ loadLocation, load
         <>
             <IconButton
                 aria-label="reload-location" onClick={loadLocation}
-                className="locationRefreshButton"
+                className="customOverlayIconButton"
+                sx={{
+                    bottom: "30px",
+                    right: "15px"
+                }}
             >
                 {
-                    error ? <GpsOffIcon className="locationRefreshIcon" /> :
-                        loading ? <Box className="locationRefreshIcon"><CircularProgress size={"1em"} /></Box> :
-                            <MyLocationIcon className="locationRefreshIcon" />
+                    error ? <GpsOffIcon className="customOverlayIcon" /> :
+                        loading ? <Box className="customOverlayIcon"><CircularProgress size={"1em"} /></Box> :
+                            <MyLocationIcon className="customOverlayIcon" />
                 }
             </IconButton >
             <Snackbar

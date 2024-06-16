@@ -60,6 +60,6 @@ export interface Quest {
 }
 
 export enum QuestType {
-	Housenumber = 0,
-	Building = 1,
+	Housenumber,
+	Building,
 }

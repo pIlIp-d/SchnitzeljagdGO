@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import UserPin from './assets/UserPin.png';
+import UserLocation from './assets/circle.svg';
 
 // Import Leaflet and fix the default icon path
 import L from 'leaflet';
@@ -24,9 +24,9 @@ const DefaultIcon = L.icon({
 });
 
 const UserIcon = L.icon({
-	iconUrl: UserPin, // Replace with your image URL
-	iconSize: [50, 50], // Adjust the size to match your image dimensions
-	iconAnchor: [25, 50], // Adjust the anchor to position the icon correctly
+	iconUrl: UserLocation, // Replace with your image URL
+	iconSize: [30, 30], // Adjust the size to match your image dimensions
+	iconAnchor: [15, 15], // Adjust the anchor to position the icon correctly
 	popupAnchor: [0, 0], // Adjust the popup anchor to open the popup correctly
 });
 
@@ -82,12 +82,12 @@ const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
 			{/*url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"*/}
+			{markers}
 			{position && (
-				<Marker position={position} icon={UserIcon}>
+				<Marker position={position} icon={UserIcon} zIndexOffset={100}>
 					<Popup>You are here.</Popup>
 				</Marker>
 			)}
-			{markers}
 			<RecenterAutomatically pos={position} />
 		</MapContainer>
 	);
