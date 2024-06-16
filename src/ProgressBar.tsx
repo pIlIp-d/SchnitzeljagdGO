@@ -1,11 +1,12 @@
 import { LinearProgressProps, Box, LinearProgress, Typography } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 function ProgressBar(props: LinearProgressProps & { current: number, max: number }) {
     const [progress, setProgress] = useState<number>(0);
 
     useEffect(() => {
-        setProgress(props.current / props.max * 100);
+        const current = Math.min(props.current, props.max);
+        setProgress(current / props.max * 100);
     }, [props.current, props.max]);
 
     return <Box sx={{ display: 'flex', alignItems: 'center' }}>

@@ -1,10 +1,11 @@
 import { fetchNodes, getBuildingTypesInRadius } from './GeoJsonHelper';
+import { MAX_OCCURENCES_FOR_QUEST, MIN_OCCURENCES_FOR_QUEST, SEARCH_RADIUS } from './config';
 import { PendingQuest, Quest, QuestType } from './types';
 
 const questBuilder = async (questType: QuestType): Promise<PendingQuest> => {
 	switch (questType) {
 		case QuestType.Building:
-			const buildingTypes = await getBuildingTypesInRadius(5, 50, 1000);
+			const buildingTypes = await getBuildingTypesInRadius(MIN_OCCURENCES_FOR_QUEST, MAX_OCCURENCES_FOR_QUEST, SEARCH_RADIUS);
 			const randomBuildingType = buildingTypes[Math.floor(Math.random() * (buildingTypes.length - 1))];
 			return {
 				name: `Try to find a Building of type: ${randomBuildingType.tags.building}.`,
@@ -27,15 +28,13 @@ const QuestGenerator = async (minElementsForQuest: number = 1): Promise<Quest> =
 		maxTries--;
 		const randomQuestType = Math.floor(Math.random() * (Object.keys(QuestType).length - 1));
 		const randomPendingQuest = await questBuilder(randomQuestType);
-		const data = await fetchNodes(randomPendingQuest.selector, 1000);
+		const data = await fetchNodes(randomPendingQuest.selector, SEARCH_RADIUS);
 
 		// if it has at least required amount of nodes
 		if (data.ways.length >= minElementsForQuest)
 			return {
 				selector: randomPendingQuest.selector,
 				name: randomPendingQuest.name,
-				doneNodes: [],
-				doneWays: [],
 				max: data.ways.length,
 			};
 		// else try again;

@@ -3,6 +3,8 @@ export type NodeElement = {
 	id: number;
 	lat: number;
 	lon: number;
+	questID?: string;
+	wayID?: number;
 };
 
 export type WayElement = {
@@ -44,12 +46,17 @@ export interface PendingQuest {
 	name: string;
 }
 
+export interface DoneWay {
+	nodes: number[];
+	doneNode: NodeElement;
+}
+
 export interface Quest {
 	selector: string,
-	doneWays: number[];
-	doneNodes: NodeElement[];
 	name: string;
 	max: number;
+	id?: string;
+	doneNodes?: NodeElement[];
 }
 
 export enum QuestType {
