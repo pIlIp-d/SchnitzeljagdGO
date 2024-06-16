@@ -23,7 +23,7 @@ function App() {
 	});
 
 	return (
-		<Router>
+		<Router basename="/SchnitzeljagdGO">
 			{userId ? (
 				<Routes>
 					<Route path="/login" element={<LoginView />} />
