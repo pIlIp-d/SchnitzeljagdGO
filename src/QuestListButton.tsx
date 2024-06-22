@@ -61,15 +61,17 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 
 	return (
 		<>
-			<ChecklistRtlIcon
-				className="customOverlayIconButton customOverlayIcon"
+			<IconButton
+				aria-label="open-quest-list"
+				onClick={() => setIsOpen(true)}
+				className="customOverlayIconButton"
 				sx={{
 					top: "30px",
 					right: "15px"
 				}}
-				aria-label="open-quest-list"
-				onClick={() => setIsOpen(true)}
-			/>
+			>
+				<ChecklistRtlIcon className="customOverlayIcon" />
+			</IconButton>
 			<Dialog aria-labelledby="dialog-title" aria-describedby="dialog-description"
 				open={isOpen}
 				onClose={handleClose}

@@ -1,5 +1,5 @@
 // MapComponent.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import UserLocation from './assets/circle.svg';
@@ -9,8 +9,10 @@ import L from 'leaflet';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
-import { NodeElement } from './types';
-import StreetView from './OpenStreetView';
+import { NodeElement, Quest } from './types';
+import { Box } from '@mui/material';
+import StreetViewButton from './views/buttons/StreetViewButton';
+import OSMButton from './views/buttons/OSMButton';
 
 // Fixing the default icon issue
 const DefaultIcon = L.icon({
@@ -34,13 +36,37 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 interface MapParameters {
 	nodes: NodeElement[];
+	quests: { [key: string]: Quest };
 	position: [number, number];
 }
 
-const Map: React.FC<MapParameters> = ({ nodes, position }) => {
+const Map: React.FC<MapParameters> = ({ nodes, quests, position }) => {
 	const [markers, setMarkers] = useState<JSX.Element[]>([]);
 
 	//TODO https://leafletjs.com/examples/mobile/
+
+
+	const setMarkersOnMap = useCallback((nodes: NodeElement[]) => {
+		const uniqueFilteredNodes = nodes.filter(function (item, pos) {
+			return nodes.indexOf(item) == pos;
+		});
+		const newMarkers = uniqueFilteredNodes.map(node => (
+			<Marker key={node.id} position={[node.lat, node.lon]}>
+				<Popup>
+					<Box display={'flex'} flexDirection={"column"} textAlign={"center"}>
+						<div>{quests[node.questID!].name}</div>
+						<div>Lat: {node.lat}, Lon: {node.lon}</div>
+						<Box display={'flex'} flexDirection={"row"} justifyContent="space-around" width="100%">
+							<StreetViewButton latitude={node.lat} longitude={node.lon} />
+							<OSMButton wayID={node.wayID!} />
+						</Box>
+					</Box>
+				</Popup>
+			</Marker>
+		));
+		setMarkers(newMarkers);
+	}, [quests]);
+
 	useEffect(() => {
 		const fetchOSMData = async () => {
 			// Hier nodes zuweisen
@@ -48,25 +74,7 @@ const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 		};
 
 		fetchOSMData();
-	}, [nodes]);
-	// Hier Node type ändern
-	const setMarkersOnMap = (nodes: NodeElement[]) => {
-		const uniqueFilteredNodes = nodes.filter(function (item, pos) {
-			return nodes.indexOf(item) == pos;
-		});
-		const newMarkers = uniqueFilteredNodes.map(node => (
-			<Marker key={node.id} position={[node.lat, node.lon]}>
-				<Popup>
-					Node ID: {node.id}
-					<br />
-					Lat: {node.lat}, Lon: {node.lon}
-					<StreetView latitude={node.lat} longitude={node.lon} />
-					{/*OSM NODE INFO https://www.openstreetmap.org/node/305293190 or ...org/way/<id>*/}
-				</Popup>
-			</Marker>
-		));
-		setMarkers(newMarkers);
-	};
+	}, [nodes, setMarkersOnMap]);
 
 	const RecenterAutomatically = ({ pos }: { pos: [number, number] }) => {
 		const map = useMap();

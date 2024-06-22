@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import Map from '../map';
 import { NodeElement, Quest, WayElement } from '../types';
 import QuestGenerator from '../QuestGenerator';
 import { fetchNodes } from '../GeoJsonHelper';
-import { Box } from '@mui/material';
+import { Box, IconButton, Snackbar } from '@mui/material';
 import dbHelper from '../dbHelper';
 import { MAX_DIST_TO_NODE } from '../config';
 import LocationButton from '../LocationButton';
 import QuestListButton from '../QuestListButton';
 import QuestDetails from '../QuestDetails';
+import CloseIcon from '@mui/icons-material/Close';
 
 type QuestViewProps = {
 	userId: string;
@@ -46,6 +47,21 @@ function QuestView({ userId }: QuestViewProps) {
 		})
 	}
 
+
+	const loadLocation = useCallback((): Promise<[number, number]> => {
+		return new Promise((resolve) => {
+			setLoading(true);
+			setError(false);
+			getCurrentLocation().then(pos => {
+				setError(false);
+				setLoading(false);
+				setPosition(pos);
+				resolve(pos);
+			}).catch(() =>
+				setError(true)
+			);
+		});
+	}, []);
 	useEffect(() => {
 		if (firstRender.current) {
 			firstRender.current = false;
@@ -58,7 +74,7 @@ function QuestView({ userId }: QuestViewProps) {
 				})
 			});
 		}
-	}, [userId]);
+	}, [userId, loadLocation]);
 
 	const addFoundNode = (node: NodeElement, way: WayElement, quest: Quest) => {
 		if (quest.id)
@@ -85,6 +101,7 @@ function QuestView({ userId }: QuestViewProps) {
 			}
 			if (!success) {
 				// TODO show message
+				setNoQuestNearYouOpen(true);
 				console.log("Not near a Node for this quest!");
 			}
 
@@ -118,29 +135,29 @@ function QuestView({ userId }: QuestViewProps) {
 		});
 	};
 
-	const loadLocation = (): Promise<[number, number]> => {
-		return new Promise((resolve) => {
-			setLoading(true);
-			setError(false);
-			getCurrentLocation().then(pos => {
-				setError(false);
-				setLoading(false);
-				setPosition(pos);
-				resolve(pos);
-			}).catch(() =>
-				setError(true)
-			);
-		});
-	}
+	const [noQuestNearYouOpen, setNoQuestNearYouOpen] = useState(false);
+	const noQuestNearYouAction = (
+		<Fragment>
+			<IconButton
+				size="small"
+				aria-label="close"
+				color="inherit"
+				onClick={() => setNoQuestNearYouOpen(false)}
+			>
+				<CloseIcon fontSize="small" />
+			</IconButton>
+		</Fragment>
+	);
+
 	return (
 		<Box display={"flex"} width={"100%"} height={"100%"} flexDirection={"column"}>
 			<Box flexGrow={1} width={"100%"} height={"100%"}>
 				{position && quests && (selectedQuestId === null ?
 					(
-						<Map nodes={doneNodes} position={position} />
+						<Map nodes={doneNodes} quests={quests} position={position} />
 					)
 					: (
-						<Map nodes={quests[selectedQuestId].doneNodes ?? []} position={position} />
+						<Map nodes={quests[selectedQuestId].doneNodes ?? []} quests={quests} position={position} />
 					))}
 			</Box>
 
@@ -150,6 +167,13 @@ function QuestView({ userId }: QuestViewProps) {
 
 			<QuestListButton quests={quests} selectQuest={setSelectedQuest} addQuest={addQuest} error={questLoadingError} />
 			<LocationButton loadLocation={loadLocation} error={error} loading={loading} />
+			<Snackbar
+				open={noQuestNearYouOpen}
+				autoHideDuration={5000}
+				onClose={() => setNoQuestNearYouOpen(false)}
+				message="Not near a Node for this quest!"
+				action={noQuestNearYouAction}
+			/>
 		</Box>
 	);
 }
