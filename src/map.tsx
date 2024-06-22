@@ -40,6 +40,7 @@ interface MapParameters {
 const Map: React.FC<MapParameters> = ({ nodes, position }) => {
 	const [markers, setMarkers] = useState<JSX.Element[]>([]);
 
+	//TODO https://leafletjs.com/examples/mobile/
 	useEffect(() => {
 		const fetchOSMData = async () => {
 			// Hier nodes zuweisen
