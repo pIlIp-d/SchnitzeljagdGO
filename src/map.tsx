@@ -48,7 +48,7 @@ const Map: React.FC<MapParameters> = ({ nodes, quests, position }) => {
 
 	const setMarkersOnMap = useCallback((nodes: NodeElement[]) => {
 		const uniqueFilteredNodes = nodes.filter(function (item, pos) {
-			return nodes.indexOf(item) == pos;
+			return nodes.flatMap(n => n.id).indexOf(item.id) == pos;
 		});
 		const newMarkers = uniqueFilteredNodes.map(node => (
 			<Marker key={node.id} position={[node.lat, node.lon]}>

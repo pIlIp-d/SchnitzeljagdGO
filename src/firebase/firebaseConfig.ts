@@ -17,6 +17,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 export const db = getFirestore(app);
 
+// TODO login, logout, account, register views
+// https://www.freecodecamp.org/news/use-firebase-authentication-in-a-react-app/
 
 // FirebaseUI config
 export const uiConfig: firebaseui.auth.Config = {
@@ -34,10 +36,10 @@ export const uiConfig: firebaseui.auth.Config = {
 		},
 	},
 	signInFlow: 'popup', // Use popup for IDP Providers sign-in flow instead of the default redirect
-	signInSuccessUrl: '/', // URL to redirect to after a successful sign-in
+	signInSuccessUrl: '/SchnitzeljagdGO/', // URL to redirect to after a successful sign-in
 	signInOptions: ['password', 'phone'],
-	tosUrl: '<your-tos-url>', // Provide your terms of service URL
-	privacyPolicyUrl: '<your-privacy-policy-url>', // Provide your privacy policy URL
+	//tosUrl: '<your-tos-url>', // Provide your terms of service URL
+	//privacyPolicyUrl: '<your-privacy-policy-url>', // Provide your privacy policy URL
 };
 
 // Initialize the FirebaseUI Widget using Firebase.
