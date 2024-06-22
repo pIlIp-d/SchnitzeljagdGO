@@ -3,17 +3,19 @@ import { Quest } from './types';
 import { Box, Button, CircularProgress, Dialog, IconButton, List, ListItem, ListItemButton, Snackbar, Stack } from '@mui/material';
 import ProgressBar from './ProgressBar';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 
 interface QuestListButtonProps {
 	quests: { [key: string]: Quest };
 	selectQuest: (quest: Quest) => void;
 	addQuest: () => void;
+	removeQuest: (questID: string) => void;
 	error: boolean;
 }
 
 
-const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, addQuest, error }) => {
+const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, addQuest, removeQuest, error }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [snackBarOpen, setSnackBarOpen] = useState(false);
@@ -86,12 +88,17 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 				</Box>
 				<List>
 					{Object.values(quests).map((quest) => (
-						<ListItem key={quest.id} onClick={() => handleListItemClick(quest)} >
-							<ListItemButton sx={{ boxShadow: 2 }}  >
-								<div>
-									<div>{quest.name}</div>
-									<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
-								</div>
+						<ListItem key={quest.id}  >
+							<ListItemButton sx={{ boxShadow: 2 }} >
+								<Box display={'flex'} justifyContent={"space-between"} width={"100%"}>
+									<div onClick={() => handleListItemClick(quest)}>
+										<div>{quest.name}</div>
+										<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
+									</div>
+									<IconButton onClick={() => removeQuest(quest.id!)}>
+										<DeleteIcon />
+									</IconButton>
+								</Box>
 							</ListItemButton>
 						</ListItem >
 					))}

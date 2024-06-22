@@ -1,4 +1,4 @@
-import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase/firebaseConfig";
 import { NodeElement, Quest } from "./types";
 
@@ -27,6 +27,25 @@ export default {
     },
     addNewQuest(userId: string, quest: Quest) {
         return addDoc(collection(db, `users/${userId}/quests`), quest);
+    },
+    removeQuest(userId: string, questID: string): Promise<NodeElement[]> {
+        return new Promise((resolve, reject) => {
+            // remove nodes
+            let newDoneNodes: NodeElement[] = [];
+            getDoc(doc(db, `users/${userId}`)).then(((snapshot) => {
+                if (snapshot.exists()) {
+                    newDoneNodes = (snapshot.data()["doneNodes"] as NodeElement[]).filter(node => node.questID !== questID);
+                    updateDoc(doc(db, `users/${userId}`), {
+                        ["doneNodes"]: newDoneNodes
+                    }).catch(reject);
+                }
+            })).then(() => {
+                // remove quest
+                deleteDoc(doc(db, `users/${userId}/quests/${questID}`)).then(() => {
+                    resolve(newDoneNodes);
+                });
+            }).catch(reject);
+        });
     },
     async getQuests(userId: string) {
         const snapshot = await getDocs(collection(db, `users/${userId}/quests`));

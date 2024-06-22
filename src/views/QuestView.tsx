@@ -47,6 +47,22 @@ function QuestView({ userId }: QuestViewProps) {
 		})
 	}
 
+	function removeQuest(questID: string) {
+		if (questID) {
+			dbHelper.removeQuest(userId, questID).then((doneNodes) => {
+				setDoneNodes(doneNodes);
+				if (selectedQuestId == questID)
+					setSelectedQuestId(null);
+				setQuests((oldQuests) => {
+					delete oldQuests[questID];
+					return structuredClone(oldQuests);
+				})
+			}).then(() => {
+
+			});
+		}
+	}
+
 
 	const loadLocation = useCallback((): Promise<[number, number]> => {
 		return new Promise((resolve) => {
@@ -84,6 +100,7 @@ function QuestView({ userId }: QuestViewProps) {
 	}
 
 	const checkLocation = async () => {
+		//TODO sort by nearest
 		if (selectedQuestId !== null) {
 			const quest = quests[selectedQuestId];
 			const { nodes, ways } = await fetchNodes(quest.selector, position, MAX_DIST_TO_NODE);
@@ -91,9 +108,9 @@ function QuestView({ userId }: QuestViewProps) {
 			let success = false;
 			for (const node of nodes) {
 				const wayOfNode = ways.filter(way => way.nodes.includes(node.id))[0];
-				// if node has already been found or is part of already found way
-				if (wayOfNode && quest.doneNodes
-					&& !quest.doneNodes.some(n => n.id === node.id || n.wayID == wayOfNode.id)) {
+				// if node hasn't been found already and is not part of already found way
+				if (wayOfNode && (!quest.doneNodes
+					|| !quest.doneNodes.some(n => n.id === node.id || n.wayID == wayOfNode.id))) {
 					addFoundNode(node, wayOfNode, quest);
 					success = true;
 					break;
@@ -102,7 +119,6 @@ function QuestView({ userId }: QuestViewProps) {
 			if (!success) {
 				// TODO show message
 				setNoQuestNearYouOpen(true);
-				console.log("Not near a Node for this quest!");
 			}
 
 		} else {
@@ -165,7 +181,7 @@ function QuestView({ userId }: QuestViewProps) {
 				<QuestDetails quest={quests[selectedQuestId]} checkLocation={checkLocation} onBackClick={() => setSelectedQuestId(null)} />
 			)}
 
-			<QuestListButton quests={quests} selectQuest={setSelectedQuest} addQuest={addQuest} error={questLoadingError} />
+			<QuestListButton quests={quests} selectQuest={setSelectedQuest} addQuest={addQuest} removeQuest={removeQuest} error={questLoadingError} />
 			<LocationButton loadLocation={loadLocation} error={error} loading={loading} />
 			<Snackbar
 				open={noQuestNearYouOpen}
