@@ -17,16 +17,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// TODO login, logout, account, register views
-// https://www.freecodecamp.org/news/use-firebase-authentication-in-a-react-app/
-
 // FirebaseUI config
 export const uiConfig: firebaseui.auth.Config = {
 	callbacks: {
 		signInSuccessWithAuthResult: () => {
-			// User successfully signed in.
-			// Return type determines whether we continue the redirect automatically
-			// or whether we leave that to developer to handle.
 			return true;
 		},
 		uiShown: () => {
@@ -35,13 +29,12 @@ export const uiConfig: firebaseui.auth.Config = {
 			document.getElementById('loader')!.style.display = 'none';
 		},
 	},
-	signInFlow: 'popup', // Use popup for IDP Providers sign-in flow instead of the default redirect
-	signInSuccessUrl: '/SchnitzeljagdGO/', // URL to redirect to after a successful sign-in
-	signInOptions: ['password', 'phone'],
+	signInFlow: 'popup',
+	signInSuccessUrl: '/SchnitzeljagdGO/',
+	signInOptions: ['password'],
 	//tosUrl: '<your-tos-url>', // Provide your terms of service URL
 	//privacyPolicyUrl: '<your-privacy-policy-url>', // Provide your privacy policy URL
 };
 
-// Initialize the FirebaseUI Widget using Firebase.
 export const ui = new firebaseui.auth.AuthUI(auth);
 export { auth };

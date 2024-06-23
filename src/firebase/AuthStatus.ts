@@ -25,3 +25,7 @@ export const checkUserStatus = (): Promise<{ user: User | null; accessToken: str
 		);
 	});
 };
+
+export const signOut = async (): Promise<void> => {
+	await auth.signOut();
+};
