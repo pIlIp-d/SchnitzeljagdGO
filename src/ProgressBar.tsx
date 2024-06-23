@@ -12,7 +12,7 @@ function ProgressBar(props: LinearProgressProps & { current: number; max: number
 	return (
 		<Box sx={{ display: 'flex', alignItems: 'center' }}>
 			<Box sx={{ width: '100%', mr: 1 }}>
-				<LinearProgress variant="determinate" value={progress} />
+				<LinearProgress variant="determinate" value={progress} {...props} />
 			</Box>
 			<Box sx={{ minWidth: 35 }}>
 				<Typography variant="body2" color="text.secondary">

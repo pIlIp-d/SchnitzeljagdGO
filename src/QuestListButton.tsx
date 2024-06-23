@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Quest } from './types';
+import { Quest, QuestGroup } from './types';
 import {
 	Box,
 	Button,
@@ -29,6 +29,10 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 	const [isOpen, setIsOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [snackBarOpen, setSnackBarOpen] = useState(false);
+	const [dailyQuests, setDailyQuests] = useState<Quest[]>([]);
+	const [randomQuests, setRandomQuests] = useState<Quest[]>([]);
+	const [doneQuests, setDoneQuests] = useState<Quest[]>([]);
+
 	useEffect(() => {
 		if (error) setSnackBarOpen(true);
 	}, [error]);
@@ -60,6 +64,9 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 
 	useEffect(() => {
 		setIsLoading(false);
+		setDailyQuests(Object.values(quests).filter(q => !q.done && q.group === QuestGroup.Daily));
+		setRandomQuests(Object.values(quests).filter(q => !q.done && q.group === QuestGroup.Random));
+		setDoneQuests(Object.values(quests).filter(q => q.done));
 	}, [quests]);
 
 	return (
@@ -83,23 +90,71 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 						</IconButton>
 					</Stack>
 				</Box>
-				<List>
-					{Object.values(quests).map(quest => (
-						<ListItem key={quest.id}>
-							<ListItemButton sx={{ boxShadow: 2 }}>
-								<Box display={'flex'} justifyContent={'space-between'} width={'100%'}>
-									<div onClick={() => handleListItemClick(quest)}>
-										<div>{quest.name}</div>
-										<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
-									</div>
-									<IconButton onClick={() => removeQuest(quest.id!)}>
-										<DeleteIcon />
-									</IconButton>
-								</Box>
-							</ListItemButton>
-						</ListItem>
-					))}
-				</List>
+				{dailyQuests.length > 0 && <>
+					<Box mx={2} >
+						<h3 id="daily-quests-title">Daily Quests</h3>
+					</Box>
+
+					<List>
+						{dailyQuests.map(quest => (
+							<ListItem key={quest.id}>
+								<ListItemButton sx={{ boxShadow: 2 }}>
+									<Box display={'flex'} justifyContent={'space-between'} width={'100%'}>
+										<div onClick={() => handleListItemClick(quest)}>
+											<div>{quest.name}</div>
+											<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
+										</div>
+									</Box>
+								</ListItemButton>
+							</ListItem>
+						))}
+					</List>
+				</>
+				}
+				{randomQuests.length > 0 && <>
+					<Box mx={2}>
+						<h3 id="random-quests-title">Random Quests</h3>
+					</Box>
+					<List>
+						{randomQuests.map(quest => (
+							<ListItem key={quest.id}>
+								<ListItemButton sx={{ boxShadow: 2 }}>
+									<Box display={'flex'} justifyContent={'space-between'} width={'100%'}>
+										<div onClick={() => handleListItemClick(quest)}>
+											<div>{quest.name}</div>
+											<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
+										</div>
+										<IconButton onClick={() => removeQuest(quest.id!)}>
+											<DeleteIcon />
+										</IconButton>
+									</Box>
+								</ListItemButton>
+							</ListItem>
+						))}
+					</List>
+				</>
+				}
+				{doneQuests.length > 0 && <>
+					<Box mx={2}>
+						<h3 id="done-quests-title">Done Quests</h3>
+					</Box>
+					<List>
+						{doneQuests.map(quest => (
+							<ListItem key={quest.id}>
+								<ListItemButton sx={{ boxShadow: 2 }}>
+									<Box display={'flex'} justifyContent={'space-between'} width={'100%'}>
+										<div onClick={() => handleListItemClick(quest)}>
+											<div>{quest.name}</div>
+											<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
+										</div>
+									</Box>
+								</ListItemButton>
+							</ListItem>
+						))}
+					</List>
+				</>
+				}
+
 				{isLoading && (
 					<Box sx={{ display: 'flex', justifyContent: 'Center' }}>
 						<CircularProgress />

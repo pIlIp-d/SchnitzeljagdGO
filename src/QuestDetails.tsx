@@ -20,7 +20,7 @@ const QuestDetails: React.FC<QuestDetailsProps> = ({ checkLocation, quest, onBac
 			</Box>
 			<Box display={'flex'} px={'1rem'} pb={'1rem'} flexDirection={'column'}>
 				<Typography>{quest.name}</Typography>
-				{quest.doneNodes?.length == quest.max ? (
+				{quest.doneNodes?.length && quest.doneNodes?.length >= quest.max ? (
 					<ProgressBar max={quest.max} current={quest.doneNodes?.length} />
 				) : (
 					<>

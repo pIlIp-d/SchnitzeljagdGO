@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import Map from '../map';
-import { NodeElement, Quest, WayElement } from '../types';
+import { NodeElement, Quest, QuestGroup, WayElement } from '../types';
 import QuestGenerator from '../QuestGenerator';
 import { fetchNodes } from '../GeoJsonHelper';
 import { Box, IconButton, Snackbar } from '@mui/material';
@@ -28,41 +28,6 @@ function QuestView({ userId }: QuestViewProps) {
 	const [error, setError] = useState(false);
 	const [questLoadingError, setQuestLoadingError] = useState(false);
 
-	function addQuest() {
-		loadLocation().then((pos) => {
-			setQuestLoadingError(false);
-			QuestGenerator(pos, Object.values(quests))
-				.then(quest => {
-					dbHelper.addNewQuest(userId, quest).then(docRef => {
-						quest.id = docRef.id;
-						setQuests(oldQuests => {
-							oldQuests[docRef.id] = quest;
-							return { ...oldQuests };
-						});
-					});
-				})
-				.catch(() => {
-					setQuestLoadingError(true);
-				});
-		})
-	}
-
-	function removeQuest(questID: string) {
-		if (questID) {
-			dbHelper.removeQuest(userId, questID).then((doneNodes) => {
-				setDoneNodes(doneNodes);
-				if (selectedQuestId == questID)
-					setSelectedQuestId(null);
-				setQuests((oldQuests) => {
-					delete oldQuests[questID];
-					return structuredClone(oldQuests);
-				})
-			}).then(() => {
-
-			});
-		}
-	}
-
 
 	const loadLocation = useCallback((): Promise<[number, number]> => {
 		return new Promise((resolve) => {
@@ -78,11 +43,62 @@ function QuestView({ userId }: QuestViewProps) {
 			);
 		});
 	}, []);
+
+	const addQuest = useCallback((group: QuestGroup = QuestGroup.Random) => {
+		loadLocation().then((pos) => {
+			setQuestLoadingError(false);
+			QuestGenerator(pos, Object.values(quests), group)
+				.then(quest => {
+					dbHelper.addNewQuest(userId, quest).then(docRef => {
+						quest.id = docRef.id;
+						setQuests(oldQuests => {
+							oldQuests[docRef.id] = quest;
+							return { ...oldQuests };
+						});
+					});
+				})
+				.catch(() => {
+					setQuestLoadingError(true);
+				});
+		})
+	}, [quests, userId, loadLocation]);
+
+	const removeQuest = useCallback((questID: string) => {
+		if (questID) {
+			dbHelper.removeQuest(userId, questID).then((doneNodes) => {
+				setDoneNodes(doneNodes);
+				if (selectedQuestId == questID)
+					setSelectedQuestId(null);
+				setQuests((oldQuests) => {
+					delete oldQuests[questID];
+					return structuredClone(oldQuests);
+				})
+			}).then(() => {
+
+			});
+		}
+	}, [selectedQuestId, userId]);
+
+
 	useEffect(() => {
 		if (firstRender.current) {
 			firstRender.current = false;
 			loadLocation();
 			dbHelper.getQuests(userId).then(quests => {
+				let foundDailyQuest = false;
+				for (const q in quests) {
+					if (quests[q].group === QuestGroup.Daily) {
+						foundDailyQuest = true;
+						if (new Date(quests[q].startDate).toLocaleDateString() !== new Date().toLocaleDateString()) {
+							foundDailyQuest = false;
+							// if quest from yesterday isnt done yet remove it
+							if (!quests[q].done)
+								removeQuest(quests[q].id!);
+						}
+					}
+				}
+				if (!foundDailyQuest)
+					addQuest(QuestGroup.Daily);
 				setQuests(quests);
 			}).then(() => {
 				dbHelper.getDoneNodes(userId).then((nodes) => {
@@ -90,13 +106,12 @@ function QuestView({ userId }: QuestViewProps) {
 				})
 			});
 		}
-	}, [userId, loadLocation]);
+	}, [userId, loadLocation, removeQuest, addQuest]);
 
 	const addFoundNode = (node: NodeElement, way: WayElement, quest: Quest) => {
-		if (quest.id)
-			dbHelper.addFoundNode(userId, quest.id, way.id, node).then((r) => {
-				setDoneNodes(oldNodes => [...oldNodes, r]);
-			});
+		dbHelper.addFoundNode(userId, quest.id!, way.id, node).then((r) => {
+			setDoneNodes(oldNodes => [...oldNodes, r]);
+		});
 	}
 
 	const checkLocation = async () => {
@@ -132,7 +147,9 @@ function QuestView({ userId }: QuestViewProps) {
 	useEffect(() => {
 		setQuests((oldQuests) => {
 			Object.keys(oldQuests).forEach(key => {
-				oldQuests[key].doneNodes = doneNodes.filter(n => n.questID === key);
+				const nodes = doneNodes.filter(n => n.questID === key);
+				oldQuests[key].doneNodes = nodes;
+				oldQuests[key].done = oldQuests[key].max <= nodes.length;
 			});
 			return { ...oldQuests };
 		});

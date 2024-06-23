@@ -52,6 +52,14 @@ export interface Quest {
 	max: number;
 	id?: string;
 	doneNodes?: NodeElement[];
+	group: QuestGroup;
+	startDate: string;
+	done: boolean;
+}
+
+export enum QuestGroup {
+	Daily,
+	Random
 }
 
 export enum QuestType {

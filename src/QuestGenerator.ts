@@ -1,6 +1,6 @@
 import { fetchNodes, getBuildingTypesInRadius } from './GeoJsonHelper';
 import { MAX_OCCURENCES_FOR_QUEST, MIN_OCCURENCES_FOR_QUEST, SEARCH_RADIUS } from './config';
-import { Quest, QuestType } from './types';
+import { Quest, QuestGroup, QuestType } from './types';
 
 const questBuilder = async (questType: QuestType, position: [number, number]) => {
 	switch (questType) {
@@ -31,7 +31,7 @@ function getLengthOfEnum<T extends Record<string, string | number>>(e: T): numbe
 	return Object.values(e).filter(value => typeof value === 'string').length;
 }
 
-const QuestGenerator = async (position: [number, number], quests: Quest[]): Promise<Quest> => {
+const QuestGenerator = async (position: [number, number], quests: Quest[], group: QuestGroup): Promise<Quest> => {
 	let maxTries = 20;
 	while (maxTries > 0) {
 		maxTries--;
@@ -45,9 +45,12 @@ const QuestGenerator = async (position: [number, number], quests: Quest[]): Prom
 			(maxTries < 2 && data.ways.length > 0) // or didnt find anything else
 		)
 			return {
+				startDate: new Date().toDateString(),
 				selector: randomPendingQuest.selector,
 				name: randomPendingQuest.name,
 				max: Math.max(Math.ceil(data.ways.length / 2), 1), // at least one
+				group: group,
+				done: false,
 			};
 		// else try again;
 	}
