@@ -117,7 +117,6 @@ function QuestView({ userId }: QuestViewProps) {
 				}
 			}
 			if (!success) {
-				// TODO show message
 				setNoQuestNearYouOpen(true);
 			}
 

@@ -47,7 +47,7 @@ export interface DoneWay {
 }
 
 export interface Quest {
-	selector: string,
+	selector: string;
 	name: string;
 	max: number;
 	id?: string;

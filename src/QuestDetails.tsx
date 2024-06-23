@@ -12,25 +12,22 @@ type QuestDetailsProps = {
 
 const QuestDetails: React.FC<QuestDetailsProps> = ({ checkLocation, quest, onBackClick }) => {
 	return (
-		<Card className="questOverlayCard" >
-			<Box display={"flex"} flexDirection={'row'} justifyContent={"right"}  >
-				<IconButton aria-label="back" onClick={onBackClick} sx={{ height: "40px", width: "40px" }}>
+		<Card className="questOverlayCard">
+			<Box display={'flex'} flexDirection={'row'} justifyContent={'right'}>
+				<IconButton aria-label="back" onClick={onBackClick} sx={{ height: '40px', width: '40px' }}>
 					<CloseIcon />
 				</IconButton>
 			</Box>
-			<Box display={"flex"} px={"1rem"} pb={"1rem"} flexDirection={'column'}  >
-				<Typography >
-					{quest.name}
-				</Typography>
-				{quest.doneNodes?.length == quest.max
-					? <ProgressBar max={quest.max} current={quest.doneNodes?.length} />
-					: <>
+			<Box display={'flex'} px={'1rem'} pb={'1rem'} flexDirection={'column'}>
+				<Typography>{quest.name}</Typography>
+				{quest.doneNodes?.length == quest.max ? (
+					<ProgressBar max={quest.max} current={quest.doneNodes?.length} />
+				) : (
+					<>
 						<ProgressBar max={quest.max} current={quest.doneNodes?.length ?? 0} />
-						<Button onClick={checkLocation}>
-							Check Location
-						</Button>
+						<Button onClick={checkLocation}>Check Location</Button>
 					</>
-				}
+				)}
 			</Box>
 		</Card>
 	);

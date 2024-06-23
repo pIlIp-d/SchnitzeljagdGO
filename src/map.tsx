@@ -45,27 +45,31 @@ const Map: React.FC<MapParameters> = ({ nodes, quests, position }) => {
 
 	//TODO https://leafletjs.com/examples/mobile/
 
-
-	const setMarkersOnMap = useCallback((nodes: NodeElement[]) => {
-		const uniqueFilteredNodes = nodes.filter(function (item, pos) {
-			return nodes.flatMap(n => n.id).indexOf(item.id) == pos;
-		});
-		const newMarkers = uniqueFilteredNodes.map(node => (
-			<Marker key={node.id} position={[node.lat, node.lon]}>
-				<Popup>
-					<Box display={'flex'} flexDirection={"column"} textAlign={"center"}>
-						<div>{quests[node.questID!].name}</div>
-						<div>Lat: {node.lat}, Lon: {node.lon}</div>
-						<Box display={'flex'} flexDirection={"row"} justifyContent="space-around" width="100%">
-							<StreetViewButton latitude={node.lat} longitude={node.lon} />
-							<OSMButton wayID={node.wayID!} />
+	const setMarkersOnMap = useCallback(
+		(nodes: NodeElement[]) => {
+			const uniqueFilteredNodes = nodes.filter(function (item, pos) {
+				return nodes.flatMap(n => n.id).indexOf(item.id) == pos;
+			});
+			const newMarkers = uniqueFilteredNodes.map(node => (
+				<Marker key={node.id} position={[node.lat, node.lon]}>
+					<Popup>
+						<Box display={'flex'} flexDirection={'column'} textAlign={'center'}>
+							<div>{quests[node.questID!].name}</div>
+							<div>
+								Lat: {node.lat}, Lon: {node.lon}
+							</div>
+							<Box display={'flex'} flexDirection={'row'} justifyContent="space-around" width="100%">
+								<StreetViewButton latitude={node.lat} longitude={node.lon} />
+								<OSMButton wayID={node.wayID!} />
+							</Box>
 						</Box>
-					</Box>
-				</Popup>
-			</Marker>
-		));
-		setMarkers(newMarkers);
-	}, [quests]);
+					</Popup>
+				</Marker>
+			));
+			setMarkers(newMarkers);
+		},
+		[quests]
+	);
 
 	useEffect(() => {
 		const fetchOSMData = async () => {
@@ -82,7 +86,7 @@ const Map: React.FC<MapParameters> = ({ nodes, quests, position }) => {
 			map.setView(pos);
 		}, [pos, map]);
 		return null;
-	}
+	};
 
 	return (
 		<MapContainer center={position} zoom={16} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
