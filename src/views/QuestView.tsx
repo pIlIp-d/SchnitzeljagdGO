@@ -11,6 +11,7 @@ import QuestListButton from '../QuestListButton';
 import QuestDetails from '../QuestDetails';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate, useParams } from 'react-router-dom';
+import Confetti from 'react-confetti';
 
 type QuestViewProps = {
 	userId: string;
@@ -22,7 +23,6 @@ function QuestView({ userId }: QuestViewProps) {
 
 	const firstRender = useRef(true);
 
-	// TODO limit amount of open quests + add extra tab for done quests or other point system to not load all quests every time
 	const [quests, setQuests] = useState<{ [key: string]: Quest }>({});
 	const [position, setPosition] = useState<[number, number]>([0, 0]);
 	const [doneNodes, setDoneNodes] = useState<NodeElement[]>([]);
@@ -31,6 +31,7 @@ function QuestView({ userId }: QuestViewProps) {
 	const [loadingForQuestCheck, setLoadingForQuestCheck] = useState(false);
 	const [error, setError] = useState(false);
 	const [questLoadingError, setQuestLoadingError] = useState(false);
+	const [finishedQuest, setFinishedQuest] = useState(false);
 
 	const loadLocation = useCallback((): Promise<[number, number]> => {
 		return new Promise((resolve) => {
@@ -113,6 +114,12 @@ function QuestView({ userId }: QuestViewProps) {
 
 	const addFoundNode = (node: NodeElement, way: WayElement, quest: Quest) => {
 		dbHelper.addFoundNode(userId, quest.id!, way.id, node).then((r) => {
+			if (doneNodes.filter(n => n.questID === quest.id).length + 1 >= quest.max) {
+				console.log("finished");
+				setFinishedQuest(true);
+				// Reset the win state after some time if needed
+				setTimeout(() => setFinishedQuest(false), 5000);
+			}
 			setDoneNodes(oldNodes => [...oldNodes, r]);
 		});
 	}
@@ -210,6 +217,7 @@ function QuestView({ userId }: QuestViewProps) {
 				message="Not near a Node for this quest!"
 				action={noQuestNearYouAction}
 			/>
+			{finishedQuest && <Box zIndex={1000}><Confetti /></Box>}
 		</Box>
 	);
 }
