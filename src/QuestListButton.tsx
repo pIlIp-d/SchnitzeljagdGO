@@ -109,6 +109,7 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 											<div>{quest.name}</div>
 											<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
 										</div>
+										{quest.tagId && <OSMButton showText={false} tagID={quest.tagId} />}
 									</Box>
 								</ListItemButton>
 							</ListItem>
