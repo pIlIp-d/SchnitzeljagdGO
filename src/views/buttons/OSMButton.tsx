@@ -1,13 +1,13 @@
-import { Button, ButtonProps } from "@mui/material";
+import { Button } from "@mui/material";
 
 
-const OSMButton = (props: {
+interface OSMButtonProps {
     wayID: number;
-} & Omit<ButtonProps, "onclick">) => {
+}
+const OSMButton = ({ wayID }: OSMButtonProps) => {
     return <Button
-        {...props}
         onClick={
-            () => window.open(`https://www.openstreetmap.org/way/${props.wayID}`, '_blank')
+            () => window.open(`https://www.openstreetmap.org/way/${wayID}`, '_blank')
         }
     >
         OSM Info

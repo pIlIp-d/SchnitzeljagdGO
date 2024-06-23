@@ -3,6 +3,7 @@ import MyLocationIcon from '@mui/icons-material/MyLocation';
 import GpsOffIcon from '@mui/icons-material/GpsOff';
 import CloseIcon from '@mui/icons-material/Close';
 import { Fragment, useEffect, useState } from 'react';
+import OverlayButton from './views/OverlayButton';
 
 interface LocationButtonParameters {
 	loadLocation: () => void;
@@ -29,24 +30,25 @@ const LocationButton: React.FC<LocationButtonParameters> = ({ loadLocation, load
 
 	return (
 		<>
-			<IconButton
-				aria-label="reload-location"
+			<OverlayButton
+				ariaLabel="reload-location"
 				onClick={loadLocation}
-				className="customOverlayIconButton"
 				sx={{
 					bottom: '30px',
 					right: '15px',
-				}}>
-				{error ? (
-					<GpsOffIcon className="customOverlayIcon" />
-				) : loading ? (
-					<Box className="customOverlayIcon">
-						<CircularProgress size={'1em'} />
-					</Box>
-				) : (
-					<MyLocationIcon className="customOverlayIcon" />
-				)}
-			</IconButton>
+				}}
+				icon={
+					error ? (
+						<GpsOffIcon />
+					) : loading ? (
+						<Box >
+							<CircularProgress size={'1em'} />
+						</Box>
+					) : (
+						<MyLocationIcon />
+					)
+				}
+			/>
 			<Snackbar
 				open={snackBarOpen}
 				autoHideDuration={5000}

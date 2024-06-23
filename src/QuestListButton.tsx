@@ -16,6 +16,7 @@ import ProgressBar from './ProgressBar';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
+import OverlayButton from './views/OverlayButton';
 
 interface QuestListButtonProps {
 	quests: { [key: string]: Quest };
@@ -71,16 +72,18 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 
 	return (
 		<>
-			<IconButton
-				aria-label="open-quest-list"
+			<OverlayButton
+				ariaLabel="open-quest-list"
 				onClick={() => setIsOpen(true)}
-				className="customOverlayIconButton"
 				sx={{
 					top: '30px',
 					right: '15px',
-				}}>
-				<ChecklistRtlIcon className="customOverlayIcon" />
-			</IconButton>
+				}}
+				icon={
+					<ChecklistRtlIcon />
+				}
+			/>
+
 			<Dialog aria-labelledby="dialog-title" aria-describedby="dialog-description" open={isOpen} onClose={handleClose}>
 				<Box mx={2}>
 					<Stack alignItems={'center'} justifyContent={'space-between'} direction={'row'}>

@@ -1,13 +1,14 @@
-import { Button, ButtonProps } from "@mui/material";
+import { Button } from "@mui/material";
 
 
-const StreetViewButton = (props: {
-    latitude: number, longitude: number
-} & Omit<ButtonProps, "onclick">) => {
+interface StreetViewButton {
+    latitude: number;
+    longitude: number;
+}
+const StreetViewButton = ({ latitude, longitude }: StreetViewButton) => {
     return <Button
-        {...props}
         onClick={
-            () => window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${props.latitude},${props.longitude}`, '_blank')
+            () => window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${latitude},${longitude}`, '_blank')
         }
     >
         Street View
