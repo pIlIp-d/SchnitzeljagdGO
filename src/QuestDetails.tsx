@@ -8,9 +8,10 @@ type QuestDetailsProps = {
 	checkLocation: () => void;
 	quest: Quest;
 	onBackClick: () => void;
+	loading: boolean;
 };
 
-const QuestDetails: React.FC<QuestDetailsProps> = ({ checkLocation, quest, onBackClick }) => {
+const QuestDetails: React.FC<QuestDetailsProps> = ({ checkLocation, loading, quest, onBackClick }) => {
 	return (
 		<Card className="questOverlayCard">
 			<Box display={'flex'} flexDirection={'row'} justifyContent={'right'}>
@@ -25,7 +26,7 @@ const QuestDetails: React.FC<QuestDetailsProps> = ({ checkLocation, quest, onBac
 				) : (
 					<>
 						<ProgressBar max={quest.max} current={quest.doneNodes?.length ?? 0} />
-						<Button onClick={checkLocation}>Check Location</Button>
+						<Button disabled={loading} onClick={checkLocation}>Check Location</Button>
 					</>
 				)}
 			</Box>

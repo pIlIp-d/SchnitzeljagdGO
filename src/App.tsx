@@ -28,6 +28,7 @@ function App() {
 				<Routes>
 					<Route path="/login" element={<LoginView />} />
 					<Route path="/" element={<QuestView userId={userId} />} />
+					<Route path="/quest/:questId" element={<QuestView userId={userId} />} />
 				</Routes>
 			) : (
 				<LoginView />

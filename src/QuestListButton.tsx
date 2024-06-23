@@ -17,6 +17,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 import OverlayButton from './views/OverlayButton';
+import { MAX_RANDOM_QUESTS } from './config';
 
 interface QuestListButtonProps {
 	quests: { [key: string]: Quest };
@@ -65,7 +66,7 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 
 	useEffect(() => {
 		setIsLoading(false);
-		setDailyQuests(Object.values(quests).filter(q => !q.done && q.group === QuestGroup.Daily));
+		setDailyQuests(Object.values(quests).filter(q => q.group === QuestGroup.Daily));
 		setRandomQuests(Object.values(quests).filter(q => !q.done && q.group === QuestGroup.Random));
 		setDoneQuests(Object.values(quests).filter(q => q.done));
 	}, [quests]);
@@ -114,10 +115,10 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 					</List>
 				</>
 				}
+				<Box mx={2}>
+					<h3 id="random-quests-title">Random Quests</h3>
+				</Box>
 				{randomQuests.length > 0 && <>
-					<Box mx={2}>
-						<h3 id="random-quests-title">Random Quests</h3>
-					</Box>
 					<List>
 						{randomQuests.map(quest => (
 							<ListItem key={quest.id}>
@@ -137,6 +138,15 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 					</List>
 				</>
 				}
+				{isLoading && (
+					<Box sx={{ display: 'flex', justifyContent: 'Center' }}>
+						<CircularProgress />
+					</Box>
+				)}
+				{randomQuests.length < MAX_RANDOM_QUESTS &&
+					<Button disabled={isLoading} onClick={pressGetNewQuest}>Get a new Quest</Button>
+				}
+
 				{doneQuests.length > 0 && <>
 					<Box mx={2}>
 						<h3 id="done-quests-title">Done Quests</h3>
@@ -157,13 +167,6 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 					</List>
 				</>
 				}
-
-				{isLoading && (
-					<Box sx={{ display: 'flex', justifyContent: 'Center' }}>
-						<CircularProgress />
-					</Box>
-				)}
-				<Button onClick={pressGetNewQuest}>Get a new Quest</Button>
 			</Dialog>
 			<Snackbar
 				open={snackBarOpen}

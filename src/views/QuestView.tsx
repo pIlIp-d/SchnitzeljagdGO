@@ -10,24 +10,27 @@ import LocationButton from '../LocationButton';
 import QuestListButton from '../QuestListButton';
 import QuestDetails from '../QuestDetails';
 import CloseIcon from '@mui/icons-material/Close';
+import { useNavigate, useParams } from 'react-router-dom';
 
 type QuestViewProps = {
 	userId: string;
 }
 
 function QuestView({ userId }: QuestViewProps) {
+	const { questId } = useParams();
+	const navigate = useNavigate();
+
 	const firstRender = useRef(true);
 
-	const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
 	// TODO limit amount of open quests + add extra tab for done quests or other point system to not load all quests every time
 	const [quests, setQuests] = useState<{ [key: string]: Quest }>({});
 	const [position, setPosition] = useState<[number, number]>([0, 0]);
 	const [doneNodes, setDoneNodes] = useState<NodeElement[]>([]);
 
 	const [loading, setLoading] = useState(false);
+	const [loadingForQuestCheck, setLoadingForQuestCheck] = useState(false);
 	const [error, setError] = useState(false);
 	const [questLoadingError, setQuestLoadingError] = useState(false);
-
 
 	const loadLocation = useCallback((): Promise<[number, number]> => {
 		return new Promise((resolve) => {
@@ -67,8 +70,8 @@ function QuestView({ userId }: QuestViewProps) {
 		if (questID) {
 			dbHelper.removeQuest(userId, questID).then((doneNodes) => {
 				setDoneNodes(doneNodes);
-				if (selectedQuestId == questID)
-					setSelectedQuestId(null);
+				if (questId == questID)
+					navigate("/");
 				setQuests((oldQuests) => {
 					delete oldQuests[questID];
 					return structuredClone(oldQuests);
@@ -77,7 +80,7 @@ function QuestView({ userId }: QuestViewProps) {
 
 			});
 		}
-	}, [selectedQuestId, userId]);
+	}, [navigate, questId, userId]);
 
 
 	useEffect(() => {
@@ -116,8 +119,9 @@ function QuestView({ userId }: QuestViewProps) {
 
 	const checkLocation = async () => {
 		//TODO sort by nearest
-		if (selectedQuestId !== null) {
-			const quest = quests[selectedQuestId];
+		if (questId) {
+			setLoadingForQuestCheck(true);
+			const quest = quests[questId];
 			const { nodes, ways } = await fetchNodes(quest.selector, position, MAX_DIST_TO_NODE);
 
 			let success = false;
@@ -134,14 +138,14 @@ function QuestView({ userId }: QuestViewProps) {
 			if (!success) {
 				setNoQuestNearYouOpen(true);
 			}
-
+			setLoadingForQuestCheck(false);
 		} else {
 			console.log('Quest not found');
 		}
 	};
 
 	function setSelectedQuest(quest: Quest) {
-		setSelectedQuestId(quest.id as string);
+		navigate("/quest/" + quest.id as string);
 	}
 
 	useEffect(() => {
@@ -184,17 +188,17 @@ function QuestView({ userId }: QuestViewProps) {
 	return (
 		<Box display={"flex"} width={"100%"} height={"100%"} flexDirection={"column"}>
 			<Box flexGrow={1} width={"100%"} height={"100%"}>
-				{position && quests && (selectedQuestId === null ?
+				{position && quests && (!questId || !(questId in quests) ?
 					(
 						<Map nodes={doneNodes} quests={quests} position={position} />
 					)
 					: (
-						<Map nodes={quests[selectedQuestId].doneNodes ?? []} quests={quests} position={position} />
+						<Map nodes={quests[questId].doneNodes ?? []} quests={quests} position={position} />
 					))}
 			</Box>
 
-			{selectedQuestId !== null && (
-				<QuestDetails quest={quests[selectedQuestId]} checkLocation={checkLocation} onBackClick={() => setSelectedQuestId(null)} />
+			{questId && questId in quests && (
+				<QuestDetails quest={quests[questId]} checkLocation={checkLocation} onBackClick={() => navigate("/")} loading={loadingForQuestCheck} />
 			)}
 
 			<QuestListButton quests={quests} selectQuest={setSelectedQuest} addQuest={addQuest} removeQuest={removeQuest} error={questLoadingError} />
