@@ -130,10 +130,12 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 											<div>{quest.name}</div>
 											<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
 										</div>
-										{quest.tagId && <OSMButton showText={false} tagID={quest.tagId} />}
-										<IconButton onClick={() => removeQuest(quest.id!)}>
-											<DeleteIcon />
-										</IconButton>
+										<Box display={"flex"} justifyContent={"right"}>
+											{quest.tagId && <OSMButton showText={false} tagID={quest.tagId} />}
+											<IconButton onClick={() => removeQuest(quest.id!)}>
+												<DeleteIcon />
+											</IconButton>
+										</Box>
 									</Box>
 								</ListItemButton>
 							</ListItem>
