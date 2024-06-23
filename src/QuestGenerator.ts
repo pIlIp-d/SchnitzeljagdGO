@@ -15,6 +15,7 @@ const questBuilder = async (questType: QuestType, position: [number, number]) =>
 			return {
 				name: `Try to find a Building of type: ${randomBuildingType.tags.building}.`,
 				selector: `["building"="${randomBuildingType.tags.building}"]`,
+				tagId: `building:${randomBuildingType.tags.building}`,
 			};
 		}
 		case QuestType.Housenumber: {
@@ -22,6 +23,7 @@ const questBuilder = async (questType: QuestType, position: [number, number]) =>
 			return {
 				name: `Find a House with the number ${houseNumber}.`,
 				selector: `["addr:housenumber"="${houseNumber}"]`,
+				tagId: "addr:housenumber",
 			};
 		}
 	}
@@ -47,6 +49,7 @@ const QuestGenerator = async (position: [number, number], quests: Quest[], group
 			return {
 				startDate: new Date().toDateString(),
 				selector: randomPendingQuest.selector,
+				tagId: randomPendingQuest.tagId,
 				name: randomPendingQuest.name,
 				max: Math.max(Math.ceil(data.ways.length / 2), 1), // at least one
 				group: group,

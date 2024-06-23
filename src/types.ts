@@ -55,6 +55,7 @@ export interface Quest {
 	group: QuestGroup;
 	startDate: string;
 	done: boolean;
+	tagId?: string;
 }
 
 export enum QuestGroup {

@@ -18,6 +18,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 import OverlayButton from './views/OverlayButton';
 import { MAX_RANDOM_QUESTS } from './config';
+import OSMButton from './views/buttons/OSMButton';
 
 interface QuestListButtonProps {
 	quests: { [key: string]: Quest };
@@ -128,6 +129,7 @@ const QuestListButton: React.FC<QuestListButtonProps> = ({ quests, selectQuest, 
 											<div>{quest.name}</div>
 											<ProgressBar current={quest.doneNodes?.length ?? 0} max={quest.max} />
 										</div>
+										{quest.tagId && <OSMButton showText={false} tagID={quest.tagId} />}
 										<IconButton onClick={() => removeQuest(quest.id!)}>
 											<DeleteIcon />
 										</IconButton>
